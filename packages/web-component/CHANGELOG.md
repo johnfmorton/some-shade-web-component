@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.0-beta.9
+
+- Fade transition when processed snapshot replaces the source image on scroll
+
 ## 0.1.0-beta.8
 
 - Fix mobile crashes when using multiple instances on one page
