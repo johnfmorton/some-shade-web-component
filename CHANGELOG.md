@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.0-beta.7
+
+- Fix: guard custom element registration to prevent `NotSupportedError` when module is loaded more than once
+
 ## 0.1.0-beta.4
 
 - Add publish scripts to monorepo root
