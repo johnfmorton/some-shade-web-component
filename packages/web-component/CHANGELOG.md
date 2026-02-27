@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.1.0-beta.6
+
+- Publish as `latest` dist-tag to fix missing sidebar links (Repository, Homepage, Issues) on npmjs.com
+
+## 0.1.0-beta.5
+
+- Add license, repository, homepage, and bugs fields to package.json
+- Add CHANGELOG.md and LICENSE to published package
+
 ## 0.1.0-beta.4
 
 - Add publish scripts to monorepo root
