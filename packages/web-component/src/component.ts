@@ -7,6 +7,40 @@ import { createQuad, drawQuad } from './gl/quad.js';
 import { get as getEffect } from './registry.js';
 import type { EffectDefinition } from './types.js';
 
+/** Maximum device-pixel-ratio for the render canvas. Caps at 2 to avoid
+ *  memory blowout on 3×+ mobile screens. */
+const MAX_DPR = 2;
+
+/**
+ * Global render queue — serialises WebGL renders across all instances
+ * so at most one context exists at a time, keeping peak GPU memory low.
+ */
+let renderQueue: Promise<void> = Promise.resolve();
+function enqueueRender(fn: () => Promise<void>): Promise<void> {
+  const next = renderQueue.then(fn, fn);
+  renderQueue = next;
+  return next;
+}
+
+/** Public properties that require re-rendering the effect when changed. */
+const RENDER_PROPS: ReadonlySet<string> = new Set([
+  'effect',
+  'dotRadius',
+  'gridSize',
+  'angleC',
+  'angleM',
+  'angleY',
+  'angleK',
+  'duotoneColor',
+  'angle',
+  'threshold',
+  'sortDirection',
+  'sortSpan',
+  'dotOffsetX',
+  'dotOffsetY',
+  'bgColor',
+]);
+
 export class SomeShadeImage extends LitElement {
   static override styles = css`
     :host {
@@ -14,7 +48,7 @@ export class SomeShadeImage extends LitElement {
       position: relative;
       overflow: hidden;
     }
-    canvas, img {
+    img {
       display: block;
       width: 100%;
       height: auto;
@@ -39,77 +73,70 @@ export class SomeShadeImage extends LitElement {
   @property({ attribute: 'bg-color' }) bgColor = '#ffffff';
 
   @state() private _webglAvailable = true;
+  @state() private _snapshotUrl = '';
 
-  private _canvas: HTMLCanvasElement | null = null;
-  private _gl: WebGLRenderingContext | null = null;
-  private _programInfo: ProgramInfo | null = null;
-  private _textureInfo: TextureInfo | null = null;
-  private _quadBuffer: WebGLBuffer | null = null;
-  private _currentEffect: EffectDefinition | null = null;
   private _image: HTMLImageElement | null = null;
-  private _resizeObserver: ResizeObserver | null = null;
+  private _observer: IntersectionObserver | null = null;
+  private _visible = false;
+  private _needsRender = false;
 
   override render() {
     if (!this._webglAvailable) {
-      return html`<img .src=${this.src} alt="" />`;
+      return html`<img src=${this.src} alt="" />`;
     }
-    return html`<canvas></canvas>`;
+    // Show source image as placeholder until the snapshot is ready.
+    return html`<img src=${this._snapshotUrl || this.src} alt="" />`;
   }
 
-  override firstUpdated(): void {
-    if (!this._webglAvailable) return;
-
-    this._canvas = this.shadowRoot!.querySelector('canvas');
-    if (!this._canvas) return;
-
-    this._gl = createWebGLContext(this._canvas);
-    if (!this._gl) {
-      this._webglAvailable = false;
-      this.classList.add('webgl-unavailable');
-      return;
-    }
-
-    this._resizeObserver = new ResizeObserver(() => this._handleResize());
-    this._resizeObserver.observe(this);
-
-    if (this.src) {
-      this._loadImage(this.src);
-    }
+  override connectedCallback(): void {
+    super.connectedCallback();
+    this._observer = new IntersectionObserver(
+      (entries) => {
+        const wasVisible = this._visible;
+        this._visible = entries[0]?.isIntersecting ?? false;
+        if (this._visible && !wasVisible && this._needsRender) {
+          this._needsRender = false;
+          enqueueRender(() => this._renderEffect());
+        }
+      },
+      // Start rendering slightly before the element scrolls into view.
+      { rootMargin: '200px' },
+    );
+    this._observer.observe(this);
   }
 
   override updated(changed: PropertyValues): void {
-    if (!this._gl) return;
-
     if (changed.has('src') && this.src) {
       this._loadImage(this.src);
       return;
     }
 
-    if (changed.has('effect')) {
-      this._setupProgram();
-      this._renderFrame();
-      return;
-    }
+    if (!this._image) return;
 
-    // Uniform-only changes — fast path
-    this._renderFrame();
+    const needsRender = [...changed.keys()].some((k) =>
+      RENDER_PROPS.has(k as string),
+    );
+    if (needsRender) {
+      this._scheduleRender();
+    }
   }
 
   override disconnectedCallback(): void {
     super.disconnectedCallback();
-    this._resizeObserver?.disconnect();
-    this._cleanup();
+    this._observer?.disconnect();
+    this._revokeSnapshot();
   }
+
+  // ---------------------------------------------------------------------------
+  // Image loading
+  // ---------------------------------------------------------------------------
 
   private _loadImage(src: string): void {
     const img = new Image();
     img.crossOrigin = 'anonymous';
     img.onload = () => {
       this._image = img;
-      this._uploadTexture();
-      this._sizeCanvas();
-      this._setupProgram();
-      this._renderFrame();
+      this._scheduleRender();
     };
     img.onerror = () => {
       console.warn(`[some-shade] Failed to load image: ${src}`);
@@ -117,35 +144,24 @@ export class SomeShadeImage extends LitElement {
     img.src = src;
   }
 
-  private _uploadTexture(): void {
-    if (!this._gl || !this._image) return;
+  // ---------------------------------------------------------------------------
+  // Render scheduling
+  // ---------------------------------------------------------------------------
 
-    // Delete old texture
-    if (this._textureInfo) {
-      this._gl.deleteTexture(this._textureInfo.texture);
+  private _scheduleRender(): void {
+    if (this._visible) {
+      enqueueRender(() => this._renderEffect());
+    } else {
+      this._needsRender = true;
     }
-
-    this._textureInfo = loadTexture(this._gl, this._image);
   }
 
-  private _sizeCanvas(): void {
-    if (!this._canvas || !this._textureInfo) return;
+  // ---------------------------------------------------------------------------
+  // WebGL render → snapshot → tear-down
+  // ---------------------------------------------------------------------------
 
-    const dpr = window.devicePixelRatio || 1;
-    const w = this._textureInfo.width;
-    const h = this._textureInfo.height;
-
-    this._canvas.width = w * dpr;
-    this._canvas.height = h * dpr;
-    this._canvas.style.aspectRatio = `${w} / ${h}`;
-  }
-
-  private _handleResize(): void {
-    this._renderFrame();
-  }
-
-  private _setupProgram(): void {
-    if (!this._gl) return;
+  private async _renderEffect(): Promise<void> {
+    if (!this._image) return;
 
     const effectDef = getEffect(this.effect);
     if (!effectDef) {
@@ -153,30 +169,111 @@ export class SomeShadeImage extends LitElement {
       return;
     }
 
-    // Delete old program
-    if (this._programInfo) {
-      this._gl.deleteProgram(this._programInfo.program);
+    const dpr = Math.min(window.devicePixelRatio || 1, MAX_DPR);
+    const w = this._image.naturalWidth;
+    const h = this._image.naturalHeight;
+
+    // Temporary offscreen canvas — not added to the DOM.
+    const canvas = document.createElement('canvas');
+    canvas.width = w * dpr;
+    canvas.height = h * dpr;
+
+    const gl = createWebGLContext(canvas);
+    if (!gl) {
+      this._webglAvailable = false;
+      return;
     }
 
-    this._currentEffect = effectDef;
-    this._programInfo = createProgram(this._gl, effectDef.vertexShader, effectDef.fragmentShader);
+    try {
+      const programInfo = createProgram(
+        gl,
+        effectDef.vertexShader,
+        effectDef.fragmentShader,
+      );
+      gl.useProgram(programInfo.program);
 
-    // Recreate quad with new program's attrib locations
-    if (this._quadBuffer) {
-      this._gl.deleteBuffer(this._quadBuffer);
+      const textureInfo = loadTexture(gl, this._image);
+      const quadBuffer = createQuad(gl, programInfo);
+
+      // Draw
+      gl.viewport(0, 0, canvas.width, canvas.height);
+      gl.clearColor(0, 0, 0, 0);
+      gl.clear(gl.COLOR_BUFFER_BIT);
+
+      gl.activeTexture(gl.TEXTURE0);
+      gl.bindTexture(gl.TEXTURE_2D, textureInfo.texture);
+      const imageLoc = programInfo.uniformLocations.get('u_image');
+      if (imageLoc) gl.uniform1i(imageLoc, 0);
+
+      setUniforms(
+        gl,
+        programInfo,
+        this._getUniformValues(textureInfo, dpr),
+      );
+
+      gl.bindBuffer(gl.ARRAY_BUFFER, quadBuffer);
+      const stride = 4 * Float32Array.BYTES_PER_ELEMENT;
+
+      const posLoc = programInfo.attribLocations.get('a_position');
+      if (posLoc !== undefined && posLoc !== -1) {
+        gl.enableVertexAttribArray(posLoc);
+        gl.vertexAttribPointer(posLoc, 2, gl.FLOAT, false, stride, 0);
+      }
+      const texLoc = programInfo.attribLocations.get('a_texCoord');
+      if (texLoc !== undefined && texLoc !== -1) {
+        gl.enableVertexAttribArray(texLoc);
+        gl.vertexAttribPointer(
+          texLoc,
+          2,
+          gl.FLOAT,
+          false,
+          stride,
+          2 * Float32Array.BYTES_PER_ELEMENT,
+        );
+      }
+
+      drawQuad(gl);
+
+      // Snapshot the rendered canvas to a blob URL.
+      const blob = await new Promise<Blob | null>((resolve) =>
+        canvas.toBlob(resolve),
+      );
+
+      // Release WebGL resources.
+      gl.deleteTexture(textureInfo.texture);
+      gl.deleteProgram(programInfo.program);
+      gl.deleteBuffer(quadBuffer);
+
+      if (blob) {
+        this._revokeSnapshot();
+        this._snapshotUrl = URL.createObjectURL(blob);
+      }
+    } finally {
+      // Always drop the context regardless of success/failure.
+      gl.getExtension('WEBGL_lose_context')?.loseContext();
     }
-    this._gl.useProgram(this._programInfo.program);
-    this._quadBuffer = createQuad(this._gl, this._programInfo);
   }
 
-  private _getUniformValues(): Record<string, number | number[]> {
+  // ---------------------------------------------------------------------------
+  // Helpers
+  // ---------------------------------------------------------------------------
+
+  private _revokeSnapshot(): void {
+    if (this._snapshotUrl) {
+      URL.revokeObjectURL(this._snapshotUrl);
+      this._snapshotUrl = '';
+    }
+  }
+
+  private _getUniformValues(
+    textureInfo: TextureInfo,
+    dpr: number,
+  ): Record<string, number | number[]> {
     const uniforms: Record<string, number | number[]> = {};
 
-    if (!this._textureInfo) return uniforms;
-
     uniforms['u_resolution'] = [
-      this._textureInfo.width * (window.devicePixelRatio || 1),
-      this._textureInfo.height * (window.devicePixelRatio || 1),
+      textureInfo.width * dpr,
+      textureInfo.height * dpr,
     ];
     uniforms['u_dotRadius'] = this.dotRadius;
     uniforms['u_gridSize'] = this.gridSize;
@@ -207,55 +304,6 @@ export class SomeShadeImage extends LitElement {
     const g = parseInt(clean.substring(2, 4), 16) / 255;
     const b = parseInt(clean.substring(4, 6), 16) / 255;
     return [r, g, b];
-  }
-
-  private _renderFrame(): void {
-    const gl = this._gl;
-    if (!gl || !this._programInfo || !this._textureInfo || !this._canvas) return;
-
-    gl.viewport(0, 0, this._canvas.width, this._canvas.height);
-    gl.clearColor(0, 0, 0, 0);
-    gl.clear(gl.COLOR_BUFFER_BIT);
-
-    gl.useProgram(this._programInfo.program);
-
-    // Bind texture
-    gl.activeTexture(gl.TEXTURE0);
-    gl.bindTexture(gl.TEXTURE_2D, this._textureInfo.texture);
-    const imageLoc = this._programInfo.uniformLocations.get('u_image');
-    if (imageLoc) gl.uniform1i(imageLoc, 0);
-
-    // Set uniforms
-    setUniforms(gl, this._programInfo, this._getUniformValues());
-
-    // Bind quad and draw
-    gl.bindBuffer(gl.ARRAY_BUFFER, this._quadBuffer);
-
-    // Re-setup attrib pointers
-    const stride = 4 * Float32Array.BYTES_PER_ELEMENT;
-    const posLoc = this._programInfo.attribLocations.get('a_position');
-    if (posLoc !== undefined && posLoc !== -1) {
-      gl.enableVertexAttribArray(posLoc);
-      gl.vertexAttribPointer(posLoc, 2, gl.FLOAT, false, stride, 0);
-    }
-    const texLoc = this._programInfo.attribLocations.get('a_texCoord');
-    if (texLoc !== undefined && texLoc !== -1) {
-      gl.enableVertexAttribArray(texLoc);
-      gl.vertexAttribPointer(texLoc, 2, gl.FLOAT, false, stride, 2 * Float32Array.BYTES_PER_ELEMENT);
-    }
-
-    drawQuad(gl);
-  }
-
-  private _cleanup(): void {
-    if (!this._gl) return;
-    if (this._textureInfo) this._gl.deleteTexture(this._textureInfo.texture);
-    if (this._programInfo) this._gl.deleteProgram(this._programInfo.program);
-    if (this._quadBuffer) this._gl.deleteBuffer(this._quadBuffer);
-    this._gl = null;
-    this._programInfo = null;
-    this._textureInfo = null;
-    this._quadBuffer = null;
   }
 }
 
