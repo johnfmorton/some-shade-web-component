@@ -7,6 +7,7 @@
     "build": "pnpm --filter some-shade build && pnpm --filter playground build",
     "build:component": "pnpm --filter some-shade build",
     "publish:beta": "pnpm --filter @johnfmorton/some-shade publish --tag beta --access public",
-    "publish:release": "pnpm --filter @johnfmorton/some-shade publish --access public"
+    "publish:release": "pnpm --filter @johnfmorton/some-shade publish --access public",
+    "latest": "npm dist-tag add @johnfmorton/some-shade@$(node -p \"require('./packages/web-component/package.json').version\") latest"
   }
 }

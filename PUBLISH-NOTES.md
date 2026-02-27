@@ -1,0 +1,39 @@
+# Publishing @johnfmorton/some-shade
+
+## Prerequisites
+
+- Logged into npm: `npm login`
+- On a clean git working tree (all changes committed)
+
+## Beta Release
+
+1. Bump the version in `packages/web-component/package.json`
+   - e.g. `0.1.0-beta.4` → `0.1.0-beta.5`
+2. Build: `pnpm build`
+3. Commit and push
+4. Publish: `pnpm publish:beta`
+5. Tag as latest: `pnpm latest`
+
+## Stable Release
+
+1. Set the version in `packages/web-component/package.json`
+   - e.g. `0.1.0-beta.5` → `0.1.0`
+2. Build: `pnpm build`
+3. Commit and push
+4. Publish: `pnpm publish:release`
+   - This automatically tags as `latest`
+
+## Available Scripts (run from project root)
+
+| Script | What it does |
+|---|---|
+| `pnpm publish:beta` | Publish with the `beta` dist-tag |
+| `pnpm publish:release` | Publish with the `latest` dist-tag |
+| `pnpm latest` | Point the `latest` dist-tag to the current version |
+
+## Notes
+
+- The publishable package is `packages/web-component/package.json` — that's where the version lives. The root `package.json` is the monorepo workspace config and is never published.
+- npm requires a clean git state to publish. If you see a git-checks error, commit your changes first.
+- You cannot republish the same version number. If npm rejects with a 403, you need to bump the version.
+- After a beta publish, run `pnpm latest` if you want `npm i @johnfmorton/some-shade` to install that version. Otherwise only `npm i @johnfmorton/some-shade@beta` will get it.
