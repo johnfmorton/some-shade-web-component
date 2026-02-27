@@ -5,6 +5,8 @@
   "scripts": {
     "dev": "pnpm --parallel -r dev",
     "build": "pnpm --filter some-shade build && pnpm --filter playground build",
-    "build:component": "pnpm --filter some-shade build"
+    "build:component": "pnpm --filter some-shade build",
+    "publish:beta": "pnpm --filter @johnfmorton/some-shade publish --tag beta --access public",
+    "publish:release": "pnpm --filter @johnfmorton/some-shade publish --access public"
   }
 }
