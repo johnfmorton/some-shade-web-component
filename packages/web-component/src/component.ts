@@ -53,6 +53,17 @@ export class SomeShadeImage extends LitElement {
       width: 100%;
       height: auto;
     }
+    img.snapshot {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+    img.snapshot.loaded {
+      opacity: 1;
+    }
   `;
 
   @property() src = '';
@@ -74,6 +85,7 @@ export class SomeShadeImage extends LitElement {
 
   @state() private _webglAvailable = true;
   @state() private _snapshotUrl = '';
+  @state() private _snapshotLoaded = false;
 
   private _image: HTMLImageElement | null = null;
   private _observer: IntersectionObserver | null = null;
@@ -84,8 +96,18 @@ export class SomeShadeImage extends LitElement {
     if (!this._webglAvailable) {
       return html`<img src=${this.src} alt="" />`;
     }
-    // Show source image as placeholder until the snapshot is ready.
-    return html`<img src=${this._snapshotUrl || this.src} alt="" />`;
+    // Source image is always the base layer. The processed snapshot fades
+    // in on top once the blob image has finished loading.
+    return html`
+      <img src=${this.src} alt="" />
+      ${this._snapshotUrl
+        ? html`<img
+            class="snapshot${this._snapshotLoaded ? ' loaded' : ''}"
+            src=${this._snapshotUrl}
+            @load=${this._onSnapshotLoad}
+            alt="" />`
+        : ''}
+    `;
   }
 
   override connectedCallback(): void {
@@ -245,6 +267,7 @@ export class SomeShadeImage extends LitElement {
       gl.deleteBuffer(quadBuffer);
 
       if (blob) {
+        this._snapshotLoaded = false;
         this._revokeSnapshot();
         this._snapshotUrl = URL.createObjectURL(blob);
       }
@@ -257,6 +280,10 @@ export class SomeShadeImage extends LitElement {
   // ---------------------------------------------------------------------------
   // Helpers
   // ---------------------------------------------------------------------------
+
+  private _onSnapshotLoad(): void {
+    this._snapshotLoaded = true;
+  }
 
   private _revokeSnapshot(): void {
     if (this._snapshotUrl) {
