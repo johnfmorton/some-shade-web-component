@@ -17,6 +17,9 @@ interface State {
   threshold: number;
   sortDirection: number;
   sortSpan: number;
+  dotOffsetX: number;
+  dotOffsetY: number;
+  bgColor: string;
 }
 
 type Action = { type: 'SET'; key: keyof State; value: string | number };
@@ -35,6 +38,9 @@ const initialState: State = {
   threshold: 0.5,
   sortDirection: 0,
   sortSpan: 64,
+  dotOffsetX: 0.5,
+  dotOffsetY: 0.5,
+  bgColor: '#ffffff',
 };
 
 function reducer(state: State, action: Action): State {
@@ -60,6 +66,9 @@ declare global {
           threshold?: number;
           'sort-direction'?: number;
           'sort-span'?: number;
+          'dot-offset-x'?: number;
+          'dot-offset-y'?: number;
+          'bg-color'?: string;
         },
         HTMLElement
       >;
@@ -97,6 +106,9 @@ export default function App() {
               threshold={state.threshold}
               sort-direction={state.sortDirection}
               sort-span={state.sortSpan}
+              dot-offset-x={state.dotOffsetX}
+              dot-offset-y={state.dotOffsetY}
+              bg-color={state.bgColor}
             />
           </div>
         </div>
@@ -129,6 +141,12 @@ export default function App() {
             onSortDirectionChange={set('sortDirection')}
             sortSpan={state.sortSpan}
             onSortSpanChange={set('sortSpan')}
+            dotOffsetX={state.dotOffsetX}
+            onDotOffsetXChange={set('dotOffsetX')}
+            dotOffsetY={state.dotOffsetY}
+            onDotOffsetYChange={set('dotOffsetY')}
+            bgColor={state.bgColor}
+            onBgColorChange={set('bgColor')}
           />
           <ExportPanel state={state} />
         </aside>

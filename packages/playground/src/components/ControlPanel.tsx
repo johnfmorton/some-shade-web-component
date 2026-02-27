@@ -26,12 +26,19 @@ interface ControlPanelProps {
   onSortDirectionChange: (v: number) => void;
   sortSpan: number;
   onSortSpanChange: (v: number) => void;
+  dotOffsetX: number;
+  onDotOffsetXChange: (v: number) => void;
+  dotOffsetY: number;
+  onDotOffsetYChange: (v: number) => void;
+  bgColor: string;
+  onBgColorChange: (v: string) => void;
 }
 
 const EFFECTS = [
   { value: 'halftone-cmyk', label: 'CMYK' },
   { value: 'halftone-duotone', label: 'Duotone' },
   { value: 'pixel-sort', label: 'Pixel Sort' },
+  { value: 'dot-grid', label: 'Dot Grid' },
 ];
 
 export default function ControlPanel(props: ControlPanelProps) {
@@ -57,8 +64,8 @@ export default function ControlPanel(props: ControlPanelProps) {
         </div>
       </div>
 
-      {/* Shared halftone sliders */}
-      {props.effect !== 'pixel-sort' && (
+      {/* Shared dot/grid sliders */}
+      {(props.effect === 'halftone-cmyk' || props.effect === 'halftone-duotone' || props.effect === 'dot-grid') && (
         <>
           <Slider label="Dot Radius" value={props.dotRadius} onChange={props.onDotRadiusChange} min={0.5} max={20} step={0.5} />
           <Slider label="Grid Size" value={props.gridSize} onChange={props.onGridSizeChange} min={2} max={40} step={1} />
@@ -92,6 +99,26 @@ export default function ControlPanel(props: ControlPanelProps) {
             </div>
           </div>
           <Slider label="Grid Angle" value={props.angle} onChange={props.onAngleChange} min={0} max={180} step={1} />
+        </div>
+      )}
+
+      {/* Dot Grid controls */}
+      {props.effect === 'dot-grid' && (
+        <div className="flex flex-col gap-4">
+          <Slider label="Dot Offset X" value={props.dotOffsetX} onChange={props.onDotOffsetXChange} min={0} max={1} step={0.01} />
+          <Slider label="Dot Offset Y" value={props.dotOffsetY} onChange={props.onDotOffsetYChange} min={0} max={1} step={0.01} />
+          <div className="flex flex-col gap-2">
+            <label className="text-sm text-zinc-400">Background Color</label>
+            <div className="flex items-center gap-3">
+              <input
+                type="color"
+                value={props.bgColor}
+                onChange={(e) => props.onBgColorChange(e.target.value)}
+                className="w-10 h-10 rounded-lg border border-zinc-700 bg-transparent cursor-pointer"
+              />
+              <span className="text-sm text-zinc-300 font-mono">{props.bgColor}</span>
+            </div>
+          </div>
         </div>
       )}
 

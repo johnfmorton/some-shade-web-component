@@ -35,6 +35,9 @@ export class SomeShadeImage extends LitElement {
   @property({ type: Number }) threshold = 0.5;
   @property({ type: Number, attribute: 'sort-direction' }) sortDirection = 0;
   @property({ type: Number, attribute: 'sort-span' }) sortSpan = 64;
+  @property({ type: Number, attribute: 'dot-offset-x' }) dotOffsetX = 0.5;
+  @property({ type: Number, attribute: 'dot-offset-y' }) dotOffsetY = 0.5;
+  @property({ attribute: 'bg-color' }) bgColor = '#ffffff';
 
   @state() private _webglAvailable = true;
 
@@ -191,6 +194,9 @@ export class SomeShadeImage extends LitElement {
       uniforms['u_threshold'] = this.threshold;
       uniforms['u_direction'] = this.sortDirection;
       uniforms['u_span'] = this.sortSpan;
+    } else if (this.effect === 'dot-grid') {
+      uniforms['u_dotOffset'] = [this.dotOffsetX, this.dotOffsetY];
+      uniforms['u_bgColor'] = this._parseHexColor(this.bgColor);
     }
 
     return uniforms;

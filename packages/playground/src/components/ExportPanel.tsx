@@ -15,6 +15,9 @@ interface ExportPanelProps {
     threshold: number;
     sortDirection: number;
     sortSpan: number;
+    dotOffsetX: number;
+    dotOffsetY: number;
+    bgColor: string;
   };
 }
 
@@ -29,6 +32,11 @@ export default function ExportPanel({ state }: ExportPanelProps) {
     if (state.effect !== 'pixel-sort') {
       base.dotRadius = state.dotRadius;
       base.gridSize = state.gridSize;
+    }
+    if (state.effect === 'dot-grid') {
+      base.dotOffsetX = state.dotOffsetX;
+      base.dotOffsetY = state.dotOffsetY;
+      base.bgColor = state.bgColor;
     }
     if (state.effect === 'halftone-cmyk') {
       base.angleC = state.angleC;
@@ -60,6 +68,12 @@ export default function ExportPanel({ state }: ExportPanelProps) {
       attrs.push(`grid-size="${state.gridSize}"`);
       attrs.push(`duotone-color="${state.duotoneColor}"`);
       attrs.push(`angle="${state.angle}"`);
+    } else if (state.effect === 'dot-grid') {
+      attrs.push(`dot-radius="${state.dotRadius}"`);
+      attrs.push(`grid-size="${state.gridSize}"`);
+      attrs.push(`dot-offset-x="${state.dotOffsetX}"`);
+      attrs.push(`dot-offset-y="${state.dotOffsetY}"`);
+      attrs.push(`bg-color="${state.bgColor}"`);
     } else if (state.effect === 'pixel-sort') {
       attrs.push(`threshold="${state.threshold}"`);
       attrs.push(`sort-direction="${state.sortDirection}"`);
