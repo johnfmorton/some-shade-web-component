@@ -1,5 +1,5 @@
 import { LitElement, html, css, PropertyValues } from 'lit';
-import { customElement, property, state } from 'lit/decorators.js';
+import { property, state } from 'lit/decorators.js';
 import { createWebGLContext } from './gl/context.js';
 import { createProgram, setUniforms, type ProgramInfo } from './gl/program.js';
 import { loadTexture, type TextureInfo } from './gl/texture.js';
@@ -7,7 +7,6 @@ import { createQuad, drawQuad } from './gl/quad.js';
 import { get as getEffect } from './registry.js';
 import type { EffectDefinition } from './types.js';
 
-@customElement('some-shade-image')
 export class SomeShadeImage extends LitElement {
   static override styles = css`
     :host {
@@ -258,4 +257,8 @@ export class SomeShadeImage extends LitElement {
     this._textureInfo = null;
     this._quadBuffer = null;
   }
+}
+
+if (!customElements.get('some-shade-image')) {
+  customElements.define('some-shade-image', SomeShadeImage);
 }
