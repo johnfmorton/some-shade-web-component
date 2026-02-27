@@ -1,6 +1,7 @@
 {
   "name": "some-shade-monorepo",
   "private": true,
+  "packageManager": "pnpm@9.15.9",
   "scripts": {
     "dev": "pnpm --parallel -r dev",
     "build": "pnpm --filter some-shade build && pnpm --filter playground build",
