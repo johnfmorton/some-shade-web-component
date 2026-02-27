@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.0-beta.10
+
+- **BREAKING:** Remove pixel sort effect (`pixel-sort`, `threshold`, `sort-direction`, `sort-span` attributes removed)
+
 ## 0.1.0-beta.9
 
 - Fade transition when processed snapshot replaces the source image on scroll

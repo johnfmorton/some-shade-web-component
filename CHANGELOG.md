@@ -1,5 +1,21 @@
 # Changelog
 
+## 0.1.0-beta.10
+
+- **BREAKING:** Remove pixel sort effect (`pixel-sort`, `threshold`, `sort-direction`, `sort-span` attributes removed)
+
+## 0.1.0-beta.9
+
+- Fade transition when processed snapshot replaces the source image on scroll
+
+## 0.1.0-beta.8
+
+- Fix mobile crashes when using multiple instances on one page
+- Render-then-snapshot architecture: WebGL context is created, used, and torn down per render instead of held persistently
+- Cap devicePixelRatio at 2 to reduce canvas memory on 3×+ mobile screens
+- Global render queue serialises WebGL across all instances (at most one context at a time)
+- IntersectionObserver defers rendering for off-screen instances until they scroll into view
+
 ## 0.1.0-beta.7
 
 - Fix: guard custom element registration to prevent `NotSupportedError` when module is loaded more than once
