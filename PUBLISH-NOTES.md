@@ -39,3 +39,4 @@
 - npm requires a clean git state to publish. If you see a git-checks error, commit your changes first.
 - You cannot republish the same version number. If npm rejects with a 403, you need to bump the version.
 - After a beta publish, run `pnpm latest` if you want `npm i @johnfmorton/some-shade` to install that version. Otherwise only `npm i @johnfmorton/some-shade@beta` will get it.
+- **GitHub Pages deployment** is triggered automatically when a version tag (e.g. `v0.1.0-beta.6`) is pushed. It does not run on every push to `main`.
