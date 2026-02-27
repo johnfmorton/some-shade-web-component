@@ -1,6 +1,6 @@
 {
-  "name": "some-shade",
-  "version": "0.1.0",
+  "name": "@johnfmorton/some-shade",
+  "version": "0.1.0-beta.1",
   "type": "module",
   "main": "./dist/some-shade.cjs.js",
   "module": "./dist/some-shade.es.js",

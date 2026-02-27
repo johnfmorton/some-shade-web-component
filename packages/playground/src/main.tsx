@@ -4,7 +4,7 @@ import App from './App';
 import './App.css';
 
 // Import web component (registers <some-shade-image>)
-import 'some-shade';
+import '@johnfmorton/some-shade';
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>

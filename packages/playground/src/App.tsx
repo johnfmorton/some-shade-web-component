@@ -2,6 +2,7 @@ import React, { useReducer } from 'react';
 import ControlPanel from './components/ControlPanel';
 import ImageInput from './components/ImageInput';
 import ExportPanel from './components/ExportPanel';
+import { name as pkgName, version as pkgVersion } from '../../web-component/package.json';
 
 interface State {
   src: string;
@@ -86,6 +87,7 @@ export default function App() {
       <header className="border-b border-zinc-800 px-6 py-4">
         <h1 className="text-lg font-semibold tracking-tight">Some Shade</h1>
         <p className="text-sm text-zinc-500">WebGL halftone shader playground</p>
+        <p className="text-xs text-zinc-600 mt-1">{pkgName}@{pkgVersion}</p>
       </header>
 
       <main className="flex flex-col lg:flex-row gap-6 p-6 max-w-7xl mx-auto">

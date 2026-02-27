@@ -10,15 +10,15 @@ importers:
 
   packages/playground:
     dependencies:
+      '@johnfmorton/some-shade':
+        specifier: workspace:*
+        version: link:../web-component
       react:
         specifier: ^19.0.0
         version: 19.2.4
       react-dom:
         specifier: ^19.0.0
         version: 19.2.4(react@19.2.4)
-      some-shade:
-        specifier: workspace:*
-        version: link:../web-component
     devDependencies:
       '@types/react':
         specifier: ^19.0.0
