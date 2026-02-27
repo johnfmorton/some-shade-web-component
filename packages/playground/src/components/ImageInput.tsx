@@ -22,8 +22,8 @@ export default function ImageInput({ src, onChange }: ImageInputProps) {
   }
 
   return (
-    <div className="flex flex-col gap-3">
-      <label className="text-sm text-zinc-400">Image Source</label>
+    <div className="bg-zinc-900/50 border border-zinc-800 rounded-xl p-5 flex flex-col gap-3">
+      <label className="text-xs font-medium uppercase tracking-wider text-zinc-500">Image Source</label>
 
       <div className="flex gap-2">
         <input
@@ -31,7 +31,7 @@ export default function ImageInput({ src, onChange }: ImageInputProps) {
           value={src}
           onChange={(e) => onChange(e.target.value)}
           placeholder="Enter image URL..."
-          className="flex-1 bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-sm text-zinc-100 placeholder:text-zinc-600 focus:outline-none focus:border-indigo-500"
+          className="flex-1 bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-sm text-zinc-100 placeholder:text-zinc-600 focus:outline-none focus:border-amber-500"
         />
         <button
           onClick={() => fileRef.current?.click()}
@@ -49,7 +49,7 @@ export default function ImageInput({ src, onChange }: ImageInputProps) {
             onClick={() => onChange(p.url)}
             className={`px-2.5 py-1 text-xs rounded-md border transition-colors cursor-pointer ${
               src === p.url
-                ? 'bg-indigo-600 border-indigo-500 text-white'
+                ? 'bg-amber-600 border-amber-500 text-white'
                 : 'bg-zinc-800 border-zinc-700 text-zinc-400 hover:bg-zinc-700'
             }`}
           >

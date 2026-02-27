@@ -1,4 +1,4 @@
-import React, { useReducer } from 'react';
+import React, { useReducer, useEffect, useRef } from 'react';
 import ControlPanel from './components/ControlPanel';
 import ImageInput from './components/ImageInput';
 import ExportPanel from './components/ExportPanel';
@@ -23,7 +23,10 @@ interface State {
   bgColor: string;
 }
 
-type Action = { type: 'SET'; key: keyof State; value: string | number };
+type Action =
+  | { type: 'SET'; key: keyof State; value: string | number }
+  | { type: 'RESET' }
+  | { type: 'INIT'; state: State };
 
 const initialState: State = {
   src: 'https://picsum.photos/id/1015/800/600',
@@ -44,8 +47,77 @@ const initialState: State = {
   bgColor: '#ffffff',
 };
 
+/** Maps camelCase state keys to kebab-case HTML attribute names */
+const keyToAttr: Record<keyof State, string> = {
+  src: 'src',
+  effect: 'effect',
+  dotRadius: 'dot-radius',
+  gridSize: 'grid-size',
+  angleC: 'angle-c',
+  angleM: 'angle-m',
+  angleY: 'angle-y',
+  angleK: 'angle-k',
+  duotoneColor: 'duotone-color',
+  angle: 'angle',
+  threshold: 'threshold',
+  sortDirection: 'sort-direction',
+  sortSpan: 'sort-span',
+  dotOffsetX: 'dot-offset-x',
+  dotOffsetY: 'dot-offset-y',
+  bgColor: 'bg-color',
+};
+
+const attrToKey = Object.fromEntries(
+  Object.entries(keyToAttr).map(([k, v]) => [v, k]),
+) as Record<string, keyof State>;
+
+const STORAGE_KEY = 'some-shade-playground';
+
+const numberKeys = new Set<keyof State>([
+  'dotRadius', 'gridSize', 'angleC', 'angleM', 'angleY', 'angleK',
+  'angle', 'threshold', 'sortDirection', 'sortSpan', 'dotOffsetX', 'dotOffsetY',
+]);
+
+function hydrateState(): State {
+  const hydrated = { ...initialState };
+
+  // Layer 2: localStorage
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) {
+      const saved = JSON.parse(raw) as Record<string, unknown>;
+      for (const [attr, val] of Object.entries(saved)) {
+        const key = attrToKey[attr] ?? attr as keyof State;
+        if (key in initialState) {
+          (hydrated as Record<string, unknown>)[key] = numberKeys.has(key) ? Number(val) : val;
+        }
+      }
+    }
+  } catch { /* ignore corrupt localStorage */ }
+
+  // Layer 3 (highest priority): URL search params
+  const params = new URLSearchParams(window.location.search);
+  for (const [attr, val] of params.entries()) {
+    const key = attrToKey[attr];
+    if (key && key !== 'src') {
+      (hydrated as Record<string, unknown>)[key] = numberKeys.has(key) ? Number(val) : val;
+    }
+  }
+
+  return hydrated;
+}
+
 function reducer(state: State, action: Action): State {
-  return { ...state, [action.key]: action.value };
+  switch (action.type) {
+    case 'SET':
+      return { ...state, [action.key]: action.value };
+    case 'RESET':
+      return { ...initialState };
+    case 'INIT':
+      return action.state;
+    default:
+      return state;
+  }
 }
 
 // Tell TS about the custom element
@@ -78,22 +150,58 @@ declare global {
 }
 
 export default function App() {
-  const [state, dispatch] = useReducer(reducer, initialState);
+  const [state, dispatch] = useReducer(reducer, undefined, hydrateState);
+  const initialized = useRef(false);
   const set = (key: keyof State) => (value: string | number) =>
     dispatch({ type: 'SET', key, value });
 
+  // Sync state → URL params + localStorage on every change
+  useEffect(() => {
+    // Skip the first render (hydration) to avoid clobbering the URL we just read
+    if (!initialized.current) {
+      initialized.current = true;
+      return;
+    }
+
+    // localStorage: persist all non-src state using kebab-case keys
+    const toStore: Record<string, unknown> = {};
+    for (const key of Object.keys(initialState) as (keyof State)[]) {
+      toStore[keyToAttr[key]] = state[key];
+    }
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(toStore)); } catch { /* quota */ }
+
+    // URL: only include params that differ from defaults, exclude src
+    const params = new URLSearchParams();
+    for (const key of Object.keys(initialState) as (keyof State)[]) {
+      if (key === 'src') continue;
+      if (state[key] !== initialState[key]) {
+        params.set(keyToAttr[key], String(state[key]));
+      }
+    }
+    const qs = params.toString();
+    const url = qs ? `${window.location.pathname}?${qs}` : window.location.pathname;
+    window.history.replaceState(null, '', url);
+  }, [state]);
+
+  function handleReset() {
+    dispatch({ type: 'RESET' });
+    try { localStorage.removeItem(STORAGE_KEY); } catch { /* ignore */ }
+    window.history.replaceState(null, '', window.location.pathname);
+  }
+
   return (
-    <div className="min-h-screen bg-zinc-950 text-zinc-100">
-      <header className="border-b border-zinc-800 px-6 py-4">
-        <h1 className="text-lg font-semibold tracking-tight">Some Shade</h1>
-        <p className="text-sm text-zinc-500">WebGL halftone shader playground</p>
-        <p className="text-xs text-zinc-600 mt-1">{pkgName}@{pkgVersion}</p>
+    <div className="min-h-screen flex flex-col bg-zinc-950 text-zinc-100">
+      <header className="border-b border-zinc-800/80 px-6 py-5">
+        <div className="max-w-7xl mx-auto">
+          <h1 className="text-2xl font-semibold tracking-tight">Some Shade</h1>
+          <p className="text-[13px] text-zinc-500 mt-1 font-light tracking-wide">WebGL halftone shader playground</p>
+        </div>
       </header>
 
-      <main className="flex flex-col lg:flex-row gap-6 p-6 max-w-7xl mx-auto">
+      <main className="flex flex-col lg:flex-row gap-8 p-6 max-w-7xl mx-auto w-full">
         {/* Preview */}
         <div className="flex-1 min-w-0">
-          <div className="bg-zinc-900 rounded-xl border border-zinc-800 overflow-hidden">
+          <div className="bg-zinc-900 rounded-xl border border-zinc-800 overflow-hidden shadow-2xl shadow-black/20">
             <some-shade-image
               src={state.src}
               effect={state.effect}
@@ -150,9 +258,26 @@ export default function App() {
             bgColor={state.bgColor}
             onBgColorChange={set('bgColor')}
           />
-          <ExportPanel state={state} />
+          <ExportPanel state={state} onReset={handleReset} />
         </aside>
       </main>
+
+      <footer className="mt-auto border-t border-zinc-800/80 px-6 py-4">
+        <div className="max-w-7xl mx-auto flex items-center justify-between text-xs text-zinc-600">
+          <span className="font-mono tracking-tight">{pkgName}@{pkgVersion}</span>
+          <a
+            href="https://github.com/johnfmorton/some-shade-web-component"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-1.5 hover:text-zinc-400 transition-colors"
+          >
+            <svg className="w-3.5 h-3.5" viewBox="0 0 16 16" fill="currentColor">
+              <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z" />
+            </svg>
+            GitHub
+          </a>
+        </div>
+      </footer>
     </div>
   );
 }

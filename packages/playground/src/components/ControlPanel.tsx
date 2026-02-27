@@ -43,7 +43,7 @@ const EFFECTS = [
 
 export default function ControlPanel(props: ControlPanelProps) {
   return (
-    <div className="flex flex-col gap-5">
+    <div className="bg-zinc-900/50 border border-zinc-800 rounded-xl p-5 flex flex-col gap-5">
       {/* Effect toggle */}
       <div className="flex flex-col gap-2">
         <label className="text-sm text-zinc-400">Effect</label>
@@ -54,7 +54,7 @@ export default function ControlPanel(props: ControlPanelProps) {
               onClick={() => props.onEffectChange(e.value)}
               className={`flex-1 px-3 py-1.5 text-sm rounded-md transition-colors cursor-pointer ${
                 props.effect === e.value
-                  ? 'bg-indigo-600 text-white'
+                  ? 'bg-amber-600 text-white'
                   : 'text-zinc-400 hover:text-zinc-200'
               }`}
             >

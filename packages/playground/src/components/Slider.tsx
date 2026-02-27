@@ -11,7 +11,7 @@ interface SliderProps {
 
 export default function Slider({ label, value, onChange, min = 0, max = 100, step = 1 }: SliderProps) {
   return (
-    <label className="flex flex-col gap-1">
+    <label className="flex flex-col gap-2">
       <div className="flex justify-between text-sm">
         <span className="text-zinc-400">{label}</span>
         <span className="text-zinc-300 tabular-nums font-mono text-xs">{value}</span>
@@ -23,7 +23,7 @@ export default function Slider({ label, value, onChange, min = 0, max = 100, ste
         step={step}
         value={value}
         onChange={(e) => onChange(Number(e.target.value))}
-        className="w-full accent-indigo-500 h-1.5 bg-zinc-700 rounded-full appearance-none cursor-pointer"
+        className="w-full"
       />
     </label>
   );
