@@ -14,6 +14,9 @@ interface State {
   angleK: number;
   duotoneColor: string;
   angle: number;
+  threshold: number;
+  sortDirection: number;
+  sortSpan: number;
 }
 
 type Action = { type: 'SET'; key: keyof State; value: string | number };
@@ -29,6 +32,9 @@ const initialState: State = {
   angleK: 45,
   duotoneColor: '#0099cc',
   angle: 0,
+  threshold: 0.5,
+  sortDirection: 0,
+  sortSpan: 64,
 };
 
 function reducer(state: State, action: Action): State {
@@ -51,6 +57,9 @@ declare global {
           'angle-k'?: number;
           'duotone-color'?: string;
           angle?: number;
+          threshold?: number;
+          'sort-direction'?: number;
+          'sort-span'?: number;
         },
         HTMLElement
       >;
@@ -85,6 +94,9 @@ export default function App() {
               angle-k={state.angleK}
               duotone-color={state.duotoneColor}
               angle={state.angle}
+              threshold={state.threshold}
+              sort-direction={state.sortDirection}
+              sort-span={state.sortSpan}
             />
           </div>
         </div>
@@ -111,6 +123,12 @@ export default function App() {
             onDuotoneColorChange={set('duotoneColor')}
             angle={state.angle}
             onAngleChange={set('angle')}
+            threshold={state.threshold}
+            onThresholdChange={set('threshold')}
+            sortDirection={state.sortDirection}
+            onSortDirectionChange={set('sortDirection')}
+            sortSpan={state.sortSpan}
+            onSortSpanChange={set('sortSpan')}
           />
           <ExportPanel state={state} />
         </aside>

@@ -12,6 +12,9 @@ interface ExportPanelProps {
     angleK: number;
     duotoneColor: string;
     angle: number;
+    threshold: number;
+    sortDirection: number;
+    sortSpan: number;
   };
 }
 
@@ -22,33 +25,45 @@ export default function ExportPanel({ state }: ExportPanelProps) {
     const base: Record<string, unknown> = {
       src: state.src,
       effect: state.effect,
-      dotRadius: state.dotRadius,
-      gridSize: state.gridSize,
     };
+    if (state.effect !== 'pixel-sort') {
+      base.dotRadius = state.dotRadius;
+      base.gridSize = state.gridSize;
+    }
     if (state.effect === 'halftone-cmyk') {
       base.angleC = state.angleC;
       base.angleM = state.angleM;
       base.angleY = state.angleY;
       base.angleK = state.angleK;
-    } else {
+    } else if (state.effect === 'halftone-duotone') {
       base.duotoneColor = state.duotoneColor;
       base.angle = state.angle;
+    } else if (state.effect === 'pixel-sort') {
+      base.threshold = state.threshold;
+      base.sortDirection = state.sortDirection;
+      base.sortSpan = state.sortSpan;
     }
     return base;
   }
 
   function getMarkup() {
     const attrs = [`src="${state.src}"`, `effect="${state.effect}"`];
-    attrs.push(`dot-radius="${state.dotRadius}"`);
-    attrs.push(`grid-size="${state.gridSize}"`);
     if (state.effect === 'halftone-cmyk') {
+      attrs.push(`dot-radius="${state.dotRadius}"`);
+      attrs.push(`grid-size="${state.gridSize}"`);
       attrs.push(`angle-c="${state.angleC}"`);
       attrs.push(`angle-m="${state.angleM}"`);
       attrs.push(`angle-y="${state.angleY}"`);
       attrs.push(`angle-k="${state.angleK}"`);
-    } else {
+    } else if (state.effect === 'halftone-duotone') {
+      attrs.push(`dot-radius="${state.dotRadius}"`);
+      attrs.push(`grid-size="${state.gridSize}"`);
       attrs.push(`duotone-color="${state.duotoneColor}"`);
       attrs.push(`angle="${state.angle}"`);
+    } else if (state.effect === 'pixel-sort') {
+      attrs.push(`threshold="${state.threshold}"`);
+      attrs.push(`sort-direction="${state.sortDirection}"`);
+      attrs.push(`sort-span="${state.sortSpan}"`);
     }
     return `<some-shade-image\n  ${attrs.join('\n  ')}\n></some-shade-image>`;
   }

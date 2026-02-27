@@ -1,6 +1,7 @@
 import type { EffectDefinition } from './types.js';
 import { halftoneCmykEffect } from './effects/halftone-cmyk.js';
 import { halftoneDuotoneEffect } from './effects/halftone-duotone.js';
+import { pixelSortEffect } from './effects/pixel-sort.js';
 
 const effects = new Map<string, EffectDefinition>();
 
@@ -19,3 +20,4 @@ export function list(): string[] {
 // Pre-register built-in effects
 register(halftoneCmykEffect);
 register(halftoneDuotoneEffect);
+register(pixelSortEffect);

@@ -20,11 +20,18 @@ interface ControlPanelProps {
   onDuotoneColorChange: (v: string) => void;
   angle: number;
   onAngleChange: (v: number) => void;
+  threshold: number;
+  onThresholdChange: (v: number) => void;
+  sortDirection: number;
+  onSortDirectionChange: (v: number) => void;
+  sortSpan: number;
+  onSortSpanChange: (v: number) => void;
 }
 
 const EFFECTS = [
   { value: 'halftone-cmyk', label: 'CMYK' },
   { value: 'halftone-duotone', label: 'Duotone' },
+  { value: 'pixel-sort', label: 'Pixel Sort' },
 ];
 
 export default function ControlPanel(props: ControlPanelProps) {
@@ -50,9 +57,13 @@ export default function ControlPanel(props: ControlPanelProps) {
         </div>
       </div>
 
-      {/* Shared sliders */}
-      <Slider label="Dot Radius" value={props.dotRadius} onChange={props.onDotRadiusChange} min={0.5} max={20} step={0.5} />
-      <Slider label="Grid Size" value={props.gridSize} onChange={props.onGridSizeChange} min={2} max={40} step={1} />
+      {/* Shared halftone sliders */}
+      {props.effect !== 'pixel-sort' && (
+        <>
+          <Slider label="Dot Radius" value={props.dotRadius} onChange={props.onDotRadiusChange} min={0.5} max={20} step={0.5} />
+          <Slider label="Grid Size" value={props.gridSize} onChange={props.onGridSizeChange} min={2} max={40} step={1} />
+        </>
+      )}
 
       {/* CMYK angles */}
       {props.effect === 'halftone-cmyk' && (
@@ -81,6 +92,15 @@ export default function ControlPanel(props: ControlPanelProps) {
             </div>
           </div>
           <Slider label="Grid Angle" value={props.angle} onChange={props.onAngleChange} min={0} max={180} step={1} />
+        </div>
+      )}
+
+      {/* Pixel Sort controls */}
+      {props.effect === 'pixel-sort' && (
+        <div className="flex flex-col gap-4">
+          <Slider label="Threshold" value={props.threshold} onChange={props.onThresholdChange} min={0} max={1} step={0.01} />
+          <Slider label="Direction" value={props.sortDirection} onChange={props.onSortDirectionChange} min={0} max={360} step={1} />
+          <Slider label="Span" value={props.sortSpan} onChange={props.onSortSpanChange} min={8} max={256} step={8} />
         </div>
       )}
     </div>
