@@ -12,9 +12,6 @@ interface ExportPanelProps {
     angleK: number;
     duotoneColor: string;
     angle: number;
-    threshold: number;
-    sortDirection: number;
-    sortSpan: number;
     dotOffsetX: number;
     dotOffsetY: number;
     bgColor: string;
@@ -47,10 +44,6 @@ export default function ExportPanel({ state, onReset }: ExportPanelProps) {
       attrs.push(`dot-offset-x="${state.dotOffsetX}"`);
       attrs.push(`dot-offset-y="${state.dotOffsetY}"`);
       attrs.push(`bg-color="${state.bgColor}"`);
-    } else if (state.effect === 'pixel-sort') {
-      attrs.push(`threshold="${state.threshold}"`);
-      attrs.push(`sort-direction="${state.sortDirection}"`);
-      attrs.push(`sort-span="${state.sortSpan}"`);
     }
     return attrs;
   }

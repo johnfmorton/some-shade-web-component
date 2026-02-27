@@ -33,9 +33,6 @@ const RENDER_PROPS: ReadonlySet<string> = new Set([
   'angleK',
   'duotoneColor',
   'angle',
-  'threshold',
-  'sortDirection',
-  'sortSpan',
   'dotOffsetX',
   'dotOffsetY',
   'bgColor',
@@ -76,9 +73,6 @@ export class SomeShadeImage extends LitElement {
   @property({ type: Number, attribute: 'angle-k' }) angleK = 45;
   @property({ attribute: 'duotone-color' }) duotoneColor = '#0099cc';
   @property({ type: Number }) angle = 0;
-  @property({ type: Number }) threshold = 0.5;
-  @property({ type: Number, attribute: 'sort-direction' }) sortDirection = 0;
-  @property({ type: Number, attribute: 'sort-span' }) sortSpan = 64;
   @property({ type: Number, attribute: 'dot-offset-x' }) dotOffsetX = 0.5;
   @property({ type: Number, attribute: 'dot-offset-y' }) dotOffsetY = 0.5;
   @property({ attribute: 'bg-color' }) bgColor = '#ffffff';
@@ -313,10 +307,6 @@ export class SomeShadeImage extends LitElement {
     } else if (this.effect === 'halftone-duotone') {
       uniforms['u_duotoneColor'] = this._parseHexColor(this.duotoneColor);
       uniforms['u_angle'] = this.angle;
-    } else if (this.effect === 'pixel-sort') {
-      uniforms['u_threshold'] = this.threshold;
-      uniforms['u_direction'] = this.sortDirection;
-      uniforms['u_span'] = this.sortSpan;
     } else if (this.effect === 'dot-grid') {
       uniforms['u_dotOffset'] = [this.dotOffsetX, this.dotOffsetY];
       uniforms['u_bgColor'] = this._parseHexColor(this.bgColor);

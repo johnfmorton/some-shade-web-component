@@ -59,20 +59,6 @@ Halftone effect using a single custom color.
 ></some-shade-image>
 ```
 
-### Pixel Sort
-
-Sorts pixels by luminance along a configurable direction.
-
-```html
-<some-shade-image
-  src="photo.jpg"
-  effect="pixel-sort"
-  threshold="0.5"
-  sort-direction="0"
-  sort-span="64"
-></some-shade-image>
-```
-
 ### Dot Grid
 
 Renders the image as a grid of dots with a customizable background.
@@ -103,9 +89,6 @@ Renders the image as a grid of dots with a customizable background.
 | `angle-k` | number | `45` | halftone-cmyk |
 | `duotone-color` | string (hex) | `"#0099cc"` | halftone-duotone |
 | `angle` | number | `0` | halftone-duotone |
-| `threshold` | number | `0.5` | pixel-sort |
-| `sort-direction` | number | `0` | pixel-sort |
-| `sort-span` | number | `64` | pixel-sort |
 | `dot-offset-x` | number | `0.5` | dot-grid |
 | `dot-offset-y` | number | `0.5` | dot-grid |
 | `bg-color` | string (hex) | `"#ffffff"` | dot-grid |

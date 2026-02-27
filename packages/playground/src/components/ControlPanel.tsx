@@ -20,12 +20,6 @@ interface ControlPanelProps {
   onDuotoneColorChange: (v: string) => void;
   angle: number;
   onAngleChange: (v: number) => void;
-  threshold: number;
-  onThresholdChange: (v: number) => void;
-  sortDirection: number;
-  onSortDirectionChange: (v: number) => void;
-  sortSpan: number;
-  onSortSpanChange: (v: number) => void;
   dotOffsetX: number;
   onDotOffsetXChange: (v: number) => void;
   dotOffsetY: number;
@@ -37,7 +31,6 @@ interface ControlPanelProps {
 const EFFECTS = [
   { value: 'halftone-cmyk', label: 'CMYK' },
   { value: 'halftone-duotone', label: 'Duotone' },
-  { value: 'pixel-sort', label: 'Pixel Sort' },
   { value: 'dot-grid', label: 'Dot Grid' },
 ];
 
@@ -122,14 +115,6 @@ export default function ControlPanel(props: ControlPanelProps) {
         </div>
       )}
 
-      {/* Pixel Sort controls */}
-      {props.effect === 'pixel-sort' && (
-        <div className="flex flex-col gap-4">
-          <Slider label="Threshold" value={props.threshold} onChange={props.onThresholdChange} min={0} max={1} step={0.01} />
-          <Slider label="Direction" value={props.sortDirection} onChange={props.onSortDirectionChange} min={0} max={360} step={1} />
-          <Slider label="Span" value={props.sortSpan} onChange={props.onSortSpanChange} min={8} max={256} step={8} />
-        </div>
-      )}
     </div>
   );
 }
