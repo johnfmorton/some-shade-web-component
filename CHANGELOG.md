@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 0.1.2-beta - 2026-02-28
+
 - Add effect ON/OFF toggle to playground for before/after source image comparison
 - Add K-channel intensity control (`intensity-k` attribute, 0–2 range, default 1) to CMYK halftone effect — scales the black channel value before dot radius calculation, letting users control black dot prominence
 
