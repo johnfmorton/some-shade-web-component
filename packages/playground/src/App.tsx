@@ -1,4 +1,4 @@
-import React, { useReducer, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useReducer, useEffect, useRef, useCallback } from 'react';
 import ControlPanel from './components/ControlPanel';
 import ImageInput from './components/ImageInput';
 import ExportPanel from './components/ExportPanel';
@@ -196,6 +196,7 @@ declare global {
 
 export default function App() {
   const [state, dispatch] = useReducer(reducer, undefined, hydrateState);
+  const [effectEnabled, setEffectEnabled] = useState(true);
   const initialized = useRef(false);
   const shadeRef = useRef<HTMLElement | null>(null);
   const set = (key: keyof State) => (value: string | number) =>
@@ -253,40 +254,50 @@ export default function App() {
         {/* Preview */}
         <div className="flex-1 min-w-0">
           <div className="bg-zinc-900 rounded-xl border border-zinc-800 overflow-hidden shadow-2xl shadow-black/20">
-            <some-shade-image
-              ref={shadeRef}
-              src={state.src}
-              effect={state.effect}
-              style={state.displayWidth > 0 ? { width: `${state.displayWidth}px`, margin: '0 auto' } : undefined}
-              dot-radius={state.dotRadius}
-              grid-size={state.gridSize}
-              angle-c={state.angleC}
-              angle-m={state.angleM}
-              angle-y={state.angleY}
-              angle-k={state.angleK}
-              show-c={state.showC}
-              show-m={state.showM}
-              show-y={state.showY}
-              show-k={state.showK}
-              duotone-color={state.duotoneColor}
-              angle={state.angle}
-              dot-offset-x={state.dotOffsetX}
-              dot-offset-y={state.dotOffsetY}
-              bg-color={state.bgColor}
-              angle-warm={state.angleWarm}
-              angle-cool={state.angleCool}
-              show-warm={state.showWarm}
-              show-cool={state.showCool}
-              warm-color={state.warmColor}
-              cool-color={state.coolColor}
-              loading-blur={state.loadingBlur}
-            />
+            {effectEnabled ? (
+              <some-shade-image
+                ref={shadeRef}
+                src={state.src}
+                effect={state.effect}
+                style={state.displayWidth > 0 ? { width: `${state.displayWidth}px`, margin: '0 auto' } : undefined}
+                dot-radius={state.dotRadius}
+                grid-size={state.gridSize}
+                angle-c={state.angleC}
+                angle-m={state.angleM}
+                angle-y={state.angleY}
+                angle-k={state.angleK}
+                show-c={state.showC}
+                show-m={state.showM}
+                show-y={state.showY}
+                show-k={state.showK}
+                duotone-color={state.duotoneColor}
+                angle={state.angle}
+                dot-offset-x={state.dotOffsetX}
+                dot-offset-y={state.dotOffsetY}
+                bg-color={state.bgColor}
+                angle-warm={state.angleWarm}
+                angle-cool={state.angleCool}
+                show-warm={state.showWarm}
+                show-cool={state.showCool}
+                warm-color={state.warmColor}
+                cool-color={state.coolColor}
+                loading-blur={state.loadingBlur}
+              />
+            ) : (
+              <img
+                src={state.src}
+                alt="Source preview"
+                style={state.displayWidth > 0 ? { width: `${state.displayWidth}px`, margin: '0 auto' } : undefined}
+                className="block w-full h-auto"
+              />
+            )}
           </div>
         </div>
 
         {/* Controls */}
         <aside className="w-full lg:w-80 shrink-0 flex flex-col gap-6">
-          <ImageInput src={state.src} onChange={set('src')} />
+          <ImageInput src={state.src} onChange={set('src')} effectEnabled={effectEnabled} onEffectEnabledChange={setEffectEnabled} />
+          <div className={`flex flex-col gap-6${!effectEnabled ? ' opacity-40 pointer-events-none' : ''}`}>
           <ControlPanel
             effect={state.effect}
             onEffectChange={set('effect')}
@@ -339,6 +350,7 @@ export default function App() {
             onPreviewTransition={handlePreviewTransition}
           />
           <ExportPanel state={state} onReset={handleReset} />
+          </div>
         </aside>
       </main>
 

@@ -14,9 +14,11 @@ const PRESETS = [
 interface ImageInputProps {
   src: string;
   onChange: (src: string) => void;
+  effectEnabled: boolean;
+  onEffectEnabledChange: (v: boolean) => void;
 }
 
-export default function ImageInput({ src, onChange }: ImageInputProps) {
+export default function ImageInput({ src, onChange, effectEnabled, onEffectEnabledChange }: ImageInputProps) {
   const fileRef = useRef<HTMLInputElement>(null);
 
   function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
@@ -28,7 +30,22 @@ export default function ImageInput({ src, onChange }: ImageInputProps) {
 
   return (
     <div className="bg-zinc-900/50 border border-zinc-800 rounded-xl p-5 flex flex-col gap-3">
-      <label className="text-xs font-medium uppercase tracking-wider text-zinc-500">Image Source</label>
+      <div className="flex items-center justify-between">
+        <label className="text-xs font-medium uppercase tracking-wider text-zinc-500">Image Source</label>
+        <div className="flex items-center gap-2">
+          <span className="text-xs text-zinc-500">Effect</span>
+          <button
+            onClick={() => onEffectEnabledChange(!effectEnabled)}
+            className={`px-2.5 py-0.5 text-xs font-medium rounded-md border transition-colors cursor-pointer ${
+              effectEnabled
+                ? 'bg-amber-600 border-amber-500 text-white'
+                : 'bg-zinc-800 border-zinc-700 text-zinc-400 hover:bg-zinc-700'
+            }`}
+          >
+            {effectEnabled ? 'ON' : 'OFF'}
+          </button>
+        </div>
+      </div>
 
       <div className="flex gap-2">
         <input
