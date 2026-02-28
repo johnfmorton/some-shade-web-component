@@ -30,6 +30,7 @@ interface State {
   coolColor: string;
   gateWeave: number;
   loadingBlur: number;
+  displayWidth: number;
 }
 
 type Action =
@@ -63,6 +64,7 @@ const initialState: State = {
   coolColor: '#0da699',
   gateWeave: 0,
   loadingBlur: 0,
+  displayWidth: 0,
 };
 
 /** Maps camelCase state keys to kebab-case HTML attribute names */
@@ -92,6 +94,7 @@ const keyToAttr: Record<keyof State, string> = {
   coolColor: 'cool-color',
   gateWeave: 'gate-weave',
   loadingBlur: 'loading-blur',
+  displayWidth: 'display-width',
 };
 
 const attrToKey = Object.fromEntries(
@@ -105,7 +108,7 @@ const numberKeys = new Set<keyof State>([
   'showC', 'showM', 'showY', 'showK',
   'angle', 'dotOffsetX', 'dotOffsetY',
   'angleWarm', 'angleCool', 'showWarm', 'showCool',
-  'gateWeave', 'loadingBlur',
+  'gateWeave', 'loadingBlur', 'displayWidth',
 ]);
 
 function hydrateState(): State {
@@ -256,6 +259,7 @@ export default function App() {
               ref={shadeRef}
               src={state.src}
               effect={state.effect}
+              style={state.displayWidth > 0 ? { width: `${state.displayWidth}px`, margin: '0 auto' } : undefined}
               dot-radius={state.dotRadius}
               grid-size={state.gridSize}
               angle-c={state.angleC}
@@ -335,6 +339,8 @@ export default function App() {
             onGateWeaveChange={set('gateWeave')}
             loadingBlur={state.loadingBlur}
             onLoadingBlurChange={set('loadingBlur')}
+            displayWidth={state.displayWidth}
+            onDisplayWidthChange={set('displayWidth')}
             onPreviewTransition={handlePreviewTransition}
           />
           <ExportPanel state={state} onReset={handleReset} />

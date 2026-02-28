@@ -50,6 +50,8 @@ interface ControlPanelProps {
   onGateWeaveChange: (v: number) => void;
   loadingBlur: number;
   onLoadingBlurChange: (v: number) => void;
+  displayWidth: number;
+  onDisplayWidthChange: (v: number) => void;
   onPreviewTransition: () => void;
 }
 
@@ -214,6 +216,42 @@ export default function ControlPanel(props: ControlPanelProps) {
           <Slider label="Gate Weave" value={props.gateWeave} onChange={props.onGateWeaveChange} min={0} max={5} step={0.1} />
         </div>
       )}
+
+      {/* Display width */}
+      <div className="flex flex-col gap-2">
+        <div className="flex justify-between items-center text-sm">
+          <span className="text-zinc-400">Display Width</span>
+          {props.displayWidth > 0 ? (
+            <div className="flex items-center gap-2">
+              <span className="text-zinc-300 tabular-nums font-mono text-xs">{props.displayWidth}px</span>
+              <button
+                onClick={() => props.onDisplayWidthChange(0)}
+                className="text-xs text-zinc-500 hover:text-amber-500 transition-colors cursor-pointer"
+              >
+                auto
+              </button>
+            </div>
+          ) : (
+            <button
+              onClick={() => props.onDisplayWidthChange(600)}
+              className="text-xs text-zinc-500 hover:text-amber-500 transition-colors cursor-pointer"
+            >
+              set width
+            </button>
+          )}
+        </div>
+        {props.displayWidth > 0 && (
+          <input
+            type="range"
+            min={100}
+            max={1200}
+            step={50}
+            value={props.displayWidth}
+            onChange={(e) => props.onDisplayWidthChange(Number(e.target.value))}
+            className="w-full"
+          />
+        )}
+      </div>
 
       {/* Loading blur */}
       <Slider label="Loading Blur" value={props.loadingBlur} onChange={props.onLoadingBlurChange} min={0} max={40} step={1} />

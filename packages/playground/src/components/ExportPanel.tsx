@@ -10,12 +10,24 @@ interface ExportPanelProps {
     angleM: number;
     angleY: number;
     angleK: number;
+    showC: number;
+    showM: number;
+    showY: number;
+    showK: number;
     duotoneColor: string;
     angle: number;
     dotOffsetX: number;
     dotOffsetY: number;
     bgColor: string;
+    angleWarm: number;
+    angleCool: number;
+    showWarm: number;
+    showCool: number;
+    warmColor: string;
+    coolColor: string;
+    gateWeave: number;
     loadingBlur: number;
+    displayWidth: number;
   };
   onReset: () => void;
 }
@@ -27,34 +39,47 @@ export default function ExportPanel({ state, onReset }: ExportPanelProps) {
     const attrs: string[] = [];
     if (includeSrc) attrs.push(`src="${state.src}"`);
     attrs.push(`effect="${state.effect}"`);
+    attrs.push(`dot-radius="${state.dotRadius}"`);
+    attrs.push(`grid-size="${state.gridSize}"`);
+
     if (state.effect === 'halftone-cmyk') {
-      attrs.push(`dot-radius="${state.dotRadius}"`);
-      attrs.push(`grid-size="${state.gridSize}"`);
       attrs.push(`angle-c="${state.angleC}"`);
       attrs.push(`angle-m="${state.angleM}"`);
       attrs.push(`angle-y="${state.angleY}"`);
       attrs.push(`angle-k="${state.angleK}"`);
+      if (!state.showC) attrs.push(`show-c="0"`);
+      if (!state.showM) attrs.push(`show-m="0"`);
+      if (!state.showY) attrs.push(`show-y="0"`);
+      if (!state.showK) attrs.push(`show-k="0"`);
     } else if (state.effect === 'halftone-duotone') {
-      attrs.push(`dot-radius="${state.dotRadius}"`);
-      attrs.push(`grid-size="${state.gridSize}"`);
       attrs.push(`duotone-color="${state.duotoneColor}"`);
       attrs.push(`angle="${state.angle}"`);
     } else if (state.effect === 'dot-grid') {
-      attrs.push(`dot-radius="${state.dotRadius}"`);
-      attrs.push(`grid-size="${state.gridSize}"`);
       attrs.push(`angle="${state.angle}"`);
       attrs.push(`dot-offset-x="${state.dotOffsetX}"`);
       attrs.push(`dot-offset-y="${state.dotOffsetY}"`);
       attrs.push(`bg-color="${state.bgColor}"`);
+    } else if (state.effect === 'technicolor-2strip') {
+      attrs.push(`angle-warm="${state.angleWarm}"`);
+      attrs.push(`angle-cool="${state.angleCool}"`);
+      attrs.push(`angle-k="${state.angleK}"`);
+      if (!state.showWarm) attrs.push(`show-warm="0"`);
+      if (!state.showCool) attrs.push(`show-cool="0"`);
+      if (!state.showK) attrs.push(`show-k="0"`);
+      attrs.push(`warm-color="${state.warmColor}"`);
+      attrs.push(`cool-color="${state.coolColor}"`);
+      if (state.gateWeave > 0) attrs.push(`gate-weave="${state.gateWeave}"`);
     }
-    if (state.loadingBlur > 0) {
-      attrs.push(`loading-blur="${state.loadingBlur}"`);
-    }
+
+    if (state.loadingBlur > 0) attrs.push(`loading-blur="${state.loadingBlur}"`);
     return attrs;
   }
 
   function getMarkup() {
     const attrs = getAttrs(true);
+    if (state.displayWidth > 0) {
+      attrs.push(`style="width: ${state.displayWidth}px"`);
+    }
     return `<some-shade-image\n  ${attrs.join('\n  ')}\n></some-shade-image>`;
   }
 
@@ -68,12 +93,17 @@ export default function ExportPanel({ state, onReset }: ExportPanelProps) {
     setTimeout(() => setCopied(null), 1500);
   }
 
+  const markup = getMarkup();
+
   return (
     <div className="bg-zinc-900/50 border border-zinc-800 rounded-xl p-5 flex flex-col gap-3">
-      <label className="text-xs font-medium uppercase tracking-wider text-zinc-500">Export</label>
+      <label className="text-xs font-medium uppercase tracking-wider text-zinc-500">Markup</label>
+      <pre className="bg-zinc-950 border border-zinc-800 rounded-lg p-3 text-[11px] leading-relaxed font-mono text-zinc-400 overflow-x-auto whitespace-pre max-h-64 overflow-y-auto">
+        {markup}
+      </pre>
       <div className="flex gap-2">
         <button
-          onClick={() => copyToClipboard(getMarkup(), 'markup')}
+          onClick={() => copyToClipboard(markup, 'markup')}
           className="flex-1 px-3 py-2 bg-zinc-800 border border-zinc-700 rounded-lg text-sm text-zinc-300 hover:bg-zinc-700 transition-colors cursor-pointer"
         >
           {copied === 'markup' ? 'Copied!' : 'Copy Markup'}
