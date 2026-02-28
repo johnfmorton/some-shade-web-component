@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.1-beta
+
+- Fix halftone-duotone and halftone-cmyk shaders to sample at grid cell center — dots are now clean, uniform circles instead of splotchy per-pixel noise
+
 ## 0.1.0-beta.11
 
 - Add grid angle option to dot grid effect (`angle` attribute)

@@ -2,10 +2,13 @@
 
 ## Unreleased
 
+## 0.1.1-beta - 2026-02-28
+
 - Add 2-strip Technicolor halftone effect (`technicolor-2strip`) — simulates early two-strip film process with warm, cool, and black dot channels, adjustable dye colors, and per-channel angle/toggle controls
 - Add gate weave animation (`gate-weave` attribute) — CSS-layer film jitter at ~12fps, works with any effect
 - Fix show-channel toggles (`show-c`, `show-m`, etc.) not syncing correctly when set to off — changed from Boolean to Number attributes to fix React/Lit interop
 - Add illustration and poster preset images to playground (Mucha "Fruit", WPA "See America")
+- Fix halftone-duotone and halftone-cmyk shaders to sample at grid cell center — dots are now clean, uniform circles instead of splotchy per-pixel noise
 
 ## 0.1.0-beta.11
 

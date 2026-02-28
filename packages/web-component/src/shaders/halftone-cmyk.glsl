@@ -15,6 +15,21 @@ uniform float u_showM;
 uniform float u_showY;
 uniform float u_showK;
 
+// Returns the texture-space UV of the cell center for a given rotation angle
+vec2 cellCenterUV(vec2 uv, float angle) {
+  float rad = radians(angle);
+  float s = sin(rad);
+  float c = cos(rad);
+  mat2 rot = mat2(c, -s, s, c);
+  mat2 invRot = mat2(c, s, -s, c);
+
+  vec2 rotUV = rot * uv;
+  vec2 cell = floor(rotUV / u_gridSize);
+  vec2 cellCenter = (cell + 0.5) * u_gridSize;
+
+  return (invRot * cellCenter) / u_resolution;
+}
+
 float halftone(vec2 uv, float angle, float channelValue, float gridSize, float dotRadius) {
   float rad = radians(angle);
   float s = sin(rad);
@@ -32,18 +47,27 @@ float halftone(vec2 uv, float angle, float channelValue, float gridSize, float d
 
 void main() {
   vec2 uv = v_texCoord * u_resolution;
-  vec4 color = texture2D(u_image, v_texCoord);
 
-  float r = color.r;
-  float g = color.g;
-  float b = color.b;
+  // Sample at each channel's cell center (each channel has a different grid rotation)
+  vec3 cRgb = texture2D(u_image, cellCenterUV(uv, u_angleC)).rgb;
+  vec3 mRgb = texture2D(u_image, cellCenterUV(uv, u_angleM)).rgb;
+  vec3 yRgb = texture2D(u_image, cellCenterUV(uv, u_angleY)).rgb;
+  vec3 kRgb = texture2D(u_image, cellCenterUV(uv, u_angleK)).rgb;
 
-  // RGB to CMYK
-  float k = 1.0 - max(max(r, g), b);
-  float invK = 1.0 - k;
-  float cy = invK > 0.001 ? (invK - r) / invK : 0.0;
-  float ma = invK > 0.001 ? (invK - g) / invK : 0.0;
-  float ye = invK > 0.001 ? (invK - b) / invK : 0.0;
+  // RGB to CMYK for each channel's sample
+  float cK = 1.0 - max(max(cRgb.r, cRgb.g), cRgb.b);
+  float cInvK = 1.0 - cK;
+  float cy = cInvK > 0.001 ? (cInvK - cRgb.r) / cInvK : 0.0;
+
+  float mK = 1.0 - max(max(mRgb.r, mRgb.g), mRgb.b);
+  float mInvK = 1.0 - mK;
+  float ma = mInvK > 0.001 ? (mInvK - mRgb.g) / mInvK : 0.0;
+
+  float yK = 1.0 - max(max(yRgb.r, yRgb.g), yRgb.b);
+  float yInvK = 1.0 - yK;
+  float ye = yInvK > 0.001 ? (yInvK - yRgb.b) / yInvK : 0.0;
+
+  float k = 1.0 - max(max(kRgb.r, kRgb.g), kRgb.b);
 
   // Compute halftone dots for each channel
   float cDot = halftone(uv, u_angleC, cy, u_gridSize, u_dotRadius) * u_showC;
@@ -56,5 +80,5 @@ void main() {
   float outG = (1.0 - mDot) * (1.0 - kDot);
   float outB = (1.0 - yDot) * (1.0 - kDot);
 
-  gl_FragColor = vec4(outR, outG, outB, color.a);
+  gl_FragColor = vec4(outR, outG, outB, texture2D(u_image, v_texCoord).a);
 }
