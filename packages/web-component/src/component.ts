@@ -76,6 +76,7 @@ export class SomeShadeImage extends LitElement {
   @property({ type: Number, attribute: 'dot-offset-x' }) dotOffsetX = 0.5;
   @property({ type: Number, attribute: 'dot-offset-y' }) dotOffsetY = 0.5;
   @property({ attribute: 'bg-color' }) bgColor = '#ffffff';
+  @property({ type: Number, attribute: 'loading-blur' }) loadingBlur = 0;
 
   @state() private _webglAvailable = true;
   @state() private _snapshotUrl = '';
@@ -92,8 +93,9 @@ export class SomeShadeImage extends LitElement {
     }
     // Source image is always the base layer. The processed snapshot fades
     // in on top once the blob image has finished loading.
+    const blurStyle = this.loadingBlur > 0 ? `filter: blur(${this.loadingBlur}px)` : '';
     return html`
-      <img src=${this.src} alt="" />
+      <img src=${this.src} alt="" style=${blurStyle} />
       ${this._snapshotUrl
         ? html`<img
             class="snapshot${this._snapshotLoaded ? ' loaded' : ''}"
@@ -279,6 +281,18 @@ export class SomeShadeImage extends LitElement {
     this._snapshotLoaded = true;
   }
 
+  /** Hide the rendered snapshot momentarily, then fade it back in.
+   *  Useful for previewing the loading-blur transition. */
+  replayTransition(delay = 500): void {
+    if (!this._snapshotUrl) return;
+    this._snapshotLoaded = false;
+    this.updateComplete.then(() => {
+      setTimeout(() => {
+        this._snapshotLoaded = true;
+      }, delay);
+    });
+  }
+
   private _revokeSnapshot(): void {
     if (this._snapshotUrl) {
       URL.revokeObjectURL(this._snapshotUrl);
@@ -310,6 +324,7 @@ export class SomeShadeImage extends LitElement {
     } else if (this.effect === 'dot-grid') {
       uniforms['u_dotOffset'] = [this.dotOffsetX, this.dotOffsetY];
       uniforms['u_bgColor'] = this._parseHexColor(this.bgColor);
+      uniforms['u_angle'] = this.angle;
     }
 
     return uniforms;

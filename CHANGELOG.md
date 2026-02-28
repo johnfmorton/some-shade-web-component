@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.0-beta.11
+
+- Add grid angle option to dot grid effect (`angle` attribute)
+- Add loading blur option (`loading-blur` attribute) — source image displays blurred until the WebGL effect resolves
+- Add `replayTransition()` public method and playground preview button for the loading transition
+
 ## 0.1.0-beta.10
 
 - **BREAKING:** Remove pixel sort effect (`pixel-sort`, `threshold`, `sort-direction`, `sort-span` attributes removed)

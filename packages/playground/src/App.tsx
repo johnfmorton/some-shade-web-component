@@ -1,4 +1,4 @@
-import React, { useReducer, useEffect, useRef } from 'react';
+import React, { useReducer, useEffect, useRef, useCallback } from 'react';
 import ControlPanel from './components/ControlPanel';
 import ImageInput from './components/ImageInput';
 import ExportPanel from './components/ExportPanel';
@@ -18,6 +18,7 @@ interface State {
   dotOffsetX: number;
   dotOffsetY: number;
   bgColor: string;
+  loadingBlur: number;
 }
 
 type Action =
@@ -39,6 +40,7 @@ const initialState: State = {
   dotOffsetX: 0.5,
   dotOffsetY: 0.5,
   bgColor: '#ffffff',
+  loadingBlur: 0,
 };
 
 /** Maps camelCase state keys to kebab-case HTML attribute names */
@@ -56,6 +58,7 @@ const keyToAttr: Record<keyof State, string> = {
   dotOffsetX: 'dot-offset-x',
   dotOffsetY: 'dot-offset-y',
   bgColor: 'bg-color',
+  loadingBlur: 'loading-blur',
 };
 
 const attrToKey = Object.fromEntries(
@@ -66,7 +69,7 @@ const STORAGE_KEY = 'some-shade-playground';
 
 const numberKeys = new Set<keyof State>([
   'dotRadius', 'gridSize', 'angleC', 'angleM', 'angleY', 'angleK',
-  'angle', 'dotOffsetX', 'dotOffsetY',
+  'angle', 'dotOffsetX', 'dotOffsetY', 'loadingBlur',
 ]);
 
 function hydrateState(): State {
@@ -116,7 +119,7 @@ declare global {
   namespace JSX {
     interface IntrinsicElements {
       'some-shade-image': React.DetailedHTMLProps<
-        React.HTMLAttributes<HTMLElement> & {
+        React.HTMLAttributes<HTMLElement> & React.RefAttributes<HTMLElement> & {
           src?: string;
           effect?: string;
           'dot-radius'?: number;
@@ -130,6 +133,7 @@ declare global {
           'dot-offset-x'?: number;
           'dot-offset-y'?: number;
           'bg-color'?: string;
+          'loading-blur'?: number;
         },
         HTMLElement
       >;
@@ -140,8 +144,14 @@ declare global {
 export default function App() {
   const [state, dispatch] = useReducer(reducer, undefined, hydrateState);
   const initialized = useRef(false);
+  const shadeRef = useRef<HTMLElement | null>(null);
   const set = (key: keyof State) => (value: string | number) =>
     dispatch({ type: 'SET', key, value });
+
+  const handlePreviewTransition = useCallback(() => {
+    const el = shadeRef.current as HTMLElement & { replayTransition?: (delay?: number) => void } | null;
+    el?.replayTransition?.();
+  }, []);
 
   // Sync state → URL params + localStorage on every change
   useEffect(() => {
@@ -191,6 +201,7 @@ export default function App() {
         <div className="flex-1 min-w-0">
           <div className="bg-zinc-900 rounded-xl border border-zinc-800 overflow-hidden shadow-2xl shadow-black/20">
             <some-shade-image
+              ref={shadeRef}
               src={state.src}
               effect={state.effect}
               dot-radius={state.dotRadius}
@@ -204,6 +215,7 @@ export default function App() {
               dot-offset-x={state.dotOffsetX}
               dot-offset-y={state.dotOffsetY}
               bg-color={state.bgColor}
+              loading-blur={state.loadingBlur}
             />
           </div>
         </div>
@@ -236,6 +248,9 @@ export default function App() {
             onDotOffsetYChange={set('dotOffsetY')}
             bgColor={state.bgColor}
             onBgColorChange={set('bgColor')}
+            loadingBlur={state.loadingBlur}
+            onLoadingBlurChange={set('loadingBlur')}
+            onPreviewTransition={handlePreviewTransition}
           />
           <ExportPanel state={state} onReset={handleReset} />
         </aside>

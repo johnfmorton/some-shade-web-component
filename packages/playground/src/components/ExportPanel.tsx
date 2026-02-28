@@ -15,6 +15,7 @@ interface ExportPanelProps {
     dotOffsetX: number;
     dotOffsetY: number;
     bgColor: string;
+    loadingBlur: number;
   };
   onReset: () => void;
 }
@@ -41,9 +42,13 @@ export default function ExportPanel({ state, onReset }: ExportPanelProps) {
     } else if (state.effect === 'dot-grid') {
       attrs.push(`dot-radius="${state.dotRadius}"`);
       attrs.push(`grid-size="${state.gridSize}"`);
+      attrs.push(`angle="${state.angle}"`);
       attrs.push(`dot-offset-x="${state.dotOffsetX}"`);
       attrs.push(`dot-offset-y="${state.dotOffsetY}"`);
       attrs.push(`bg-color="${state.bgColor}"`);
+    }
+    if (state.loadingBlur > 0) {
+      attrs.push(`loading-blur="${state.loadingBlur}"`);
     }
     return attrs;
   }

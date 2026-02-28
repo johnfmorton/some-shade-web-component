@@ -26,6 +26,9 @@ interface ControlPanelProps {
   onDotOffsetYChange: (v: number) => void;
   bgColor: string;
   onBgColorChange: (v: string) => void;
+  loadingBlur: number;
+  onLoadingBlurChange: (v: number) => void;
+  onPreviewTransition: () => void;
 }
 
 const EFFECTS = [
@@ -98,6 +101,7 @@ export default function ControlPanel(props: ControlPanelProps) {
       {/* Dot Grid controls */}
       {props.effect === 'dot-grid' && (
         <div className="flex flex-col gap-4">
+          <Slider label="Grid Angle" value={props.angle} onChange={props.onAngleChange} min={0} max={180} step={1} />
           <Slider label="Dot Offset X" value={props.dotOffsetX} onChange={props.onDotOffsetXChange} min={0} max={1} step={0.01} />
           <Slider label="Dot Offset Y" value={props.dotOffsetY} onChange={props.onDotOffsetYChange} min={0} max={1} step={0.01} />
           <div className="flex flex-col gap-2">
@@ -114,6 +118,15 @@ export default function ControlPanel(props: ControlPanelProps) {
           </div>
         </div>
       )}
+
+      {/* Loading blur */}
+      <Slider label="Loading Blur" value={props.loadingBlur} onChange={props.onLoadingBlurChange} min={0} max={40} step={1} />
+      <button
+        onClick={props.onPreviewTransition}
+        className="px-3 py-2 bg-zinc-800 border border-zinc-700 rounded-lg text-sm text-zinc-300 hover:bg-zinc-700 transition-colors cursor-pointer"
+      >
+        Preview loading transition
+      </button>
 
     </div>
   );

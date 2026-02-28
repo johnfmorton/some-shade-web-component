@@ -11,5 +11,6 @@ export const dotGridEffect: EffectDefinition = {
     { name: 'u_gridSize', type: 'float', default: 8, attribute: 'grid-size' },
     { name: 'u_dotOffset', type: 'vec2', default: [0.5, 0.5], attribute: 'dot-offset' },
     { name: 'u_bgColor', type: 'vec3', default: [1.0, 1.0, 1.0], attribute: 'bg-color' },
+    { name: 'u_angle', type: 'float', default: 0, attribute: 'angle' },
   ],
 };
