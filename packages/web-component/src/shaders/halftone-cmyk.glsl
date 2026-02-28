@@ -14,6 +14,7 @@ uniform float u_showC;
 uniform float u_showM;
 uniform float u_showY;
 uniform float u_showK;
+uniform float u_intensityK;
 
 // Returns the texture-space UV of the cell center for a given rotation angle
 vec2 cellCenterUV(vec2 uv, float angle) {
@@ -68,6 +69,7 @@ void main() {
   float ye = yInvK > 0.001 ? (yInvK - yRgb.b) / yInvK : 0.0;
 
   float k = 1.0 - max(max(kRgb.r, kRgb.g), kRgb.b);
+  k = clamp(k * u_intensityK, 0.0, 1.0);
 
   // Compute halftone dots for each channel
   float cDot = halftone(uv, u_angleC, cy, u_gridSize, u_dotRadius) * u_showC;

@@ -17,5 +17,6 @@ export const halftoneCmykEffect: EffectDefinition = {
     { name: 'u_showM', type: 'float', default: 1, attribute: 'show-m' },
     { name: 'u_showY', type: 'float', default: 1, attribute: 'show-y' },
     { name: 'u_showK', type: 'float', default: 1, attribute: 'show-k' },
+    { name: 'u_intensityK', type: 'float', default: 1, attribute: 'intensity-k' },
   ],
 };

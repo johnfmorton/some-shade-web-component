@@ -24,6 +24,8 @@ interface ControlPanelProps {
   onShowYChange: (v: number) => void;
   showK: number;
   onShowKChange: (v: number) => void;
+  intensityK: number;
+  onIntensityKChange: (v: number) => void;
   duotoneColor: string;
   onDuotoneColorChange: (v: string) => void;
   angle: number;
@@ -118,6 +120,7 @@ export default function ControlPanel(props: ControlPanelProps) {
               </div>
             </div>
           ))}
+          <Slider label="K Intensity" value={props.intensityK} onChange={props.onIntensityKChange} min={0} max={2} step={0.05} />
         </div>
       )}
 

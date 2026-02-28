@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Add effect ON/OFF toggle to playground for before/after source image comparison
+- Add K-channel intensity control (`intensity-k` attribute, 0–2 range, default 1) to CMYK halftone effect — scales the black channel value before dot radius calculation, letting users control black dot prominence
+
 ## 0.1.1-beta - 2026-02-28
 
 - Add 2-strip Technicolor halftone effect (`technicolor-2strip`) — simulates early two-strip film process with warm, cool, and black dot channels, adjustable dye colors, and per-channel angle/toggle controls

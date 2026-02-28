@@ -45,6 +45,7 @@ Simulates a CMYK halftone print screen with per-channel angle control. Individua
   show-m="1"
   show-y="1"
   show-k="1"
+  intensity-k="1"
 ></some-shade-image>
 ```
 
@@ -127,6 +128,7 @@ Renders the image as a grid of dots with a customizable background.
 | `show-m` | number | `1` | Show magenta channel (0/1) |
 | `show-y` | number | `1` | Show yellow channel (0/1) |
 | `show-k` | number | `1` | Show black channel (0/1) |
+| `intensity-k` | number | `1` | Black channel intensity multiplier (0–2) |
 
 ### Duotone Halftone
 

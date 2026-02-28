@@ -17,6 +17,7 @@ interface State {
   showM: number;
   showY: number;
   showK: number;
+  intensityK: number;
   duotoneColor: string;
   angle: number;
   dotOffsetX: number;
@@ -52,6 +53,7 @@ const initialState: State = {
   showM: 1,
   showY: 1,
   showK: 1,
+  intensityK: 1,
   duotoneColor: '#0099cc',
   angle: 0,
   dotOffsetX: 0.5,
@@ -81,6 +83,7 @@ const keyToAttr: Record<keyof State, string> = {
   showM: 'show-m',
   showY: 'show-y',
   showK: 'show-k',
+  intensityK: 'intensity-k',
   duotoneColor: 'duotone-color',
   angle: 'angle',
   dotOffsetX: 'dot-offset-x',
@@ -104,7 +107,7 @@ const STORAGE_KEY = 'some-shade-playground';
 
 const numberKeys = new Set<keyof State>([
   'dotRadius', 'gridSize', 'angleC', 'angleM', 'angleY', 'angleK',
-  'showC', 'showM', 'showY', 'showK',
+  'showC', 'showM', 'showY', 'showK', 'intensityK',
   'angle', 'dotOffsetX', 'dotOffsetY',
   'angleWarm', 'angleCool', 'showWarm', 'showCool',
   'loadingBlur', 'displayWidth',
@@ -175,6 +178,7 @@ declare global {
           'show-m'?: number;
           'show-y'?: number;
           'show-k'?: number;
+          'intensity-k'?: number;
           'duotone-color'?: string;
           angle?: number;
           'dot-offset-x'?: number;
@@ -270,6 +274,7 @@ export default function App() {
                 show-m={state.showM}
                 show-y={state.showY}
                 show-k={state.showK}
+                intensity-k={state.intensityK}
                 duotone-color={state.duotoneColor}
                 angle={state.angle}
                 dot-offset-x={state.dotOffsetX}
@@ -321,6 +326,8 @@ export default function App() {
             onShowYChange={set('showY')}
             showK={state.showK}
             onShowKChange={set('showK')}
+            intensityK={state.intensityK}
+            onIntensityKChange={set('intensityK')}
             duotoneColor={state.duotoneColor}
             onDuotoneColorChange={set('duotoneColor')}
             angle={state.angle}

@@ -35,6 +35,7 @@ const RENDER_PROPS: ReadonlySet<string> = new Set([
   'showM',
   'showY',
   'showK',
+  'intensityK',
   'duotoneColor',
   'angle',
   'dotOffsetX',
@@ -86,6 +87,7 @@ export class SomeShadeImage extends LitElement {
   @property({ type: Number, attribute: 'show-m' }) showM = 1;
   @property({ type: Number, attribute: 'show-y' }) showY = 1;
   @property({ type: Number, attribute: 'show-k' }) showK = 1;
+  @property({ type: Number, attribute: 'intensity-k' }) intensityK = 1;
   @property({ attribute: 'duotone-color' }) duotoneColor = '#0099cc';
   @property({ type: Number }) angle = 0;
   @property({ type: Number, attribute: 'dot-offset-x' }) dotOffsetX = 0.5;
@@ -361,6 +363,7 @@ export class SomeShadeImage extends LitElement {
       uniforms['u_showM'] = this.showM;
       uniforms['u_showY'] = this.showY;
       uniforms['u_showK'] = this.showK;
+      uniforms['u_intensityK'] = this.intensityK;
     } else if (this.effect === 'halftone-duotone') {
       uniforms['u_duotoneColor'] = this._parseHexColor(this.duotoneColor);
       uniforms['u_angle'] = this.angle;
