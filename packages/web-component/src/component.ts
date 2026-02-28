@@ -54,6 +54,7 @@ export class SomeShadeImage extends LitElement {
       display: block;
       position: relative;
       overflow: hidden;
+      max-width: 100%;
     }
     img {
       display: block;
