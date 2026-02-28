@@ -29,7 +29,7 @@ npm install @johnfmorton/some-shade
 
 ### CMYK Halftone
 
-Simulates a CMYK halftone print screen with per-channel angle control.
+Simulates a CMYK halftone print screen with per-channel angle control. Individual channels can be toggled with `show-c`, `show-m`, `show-y`, and `show-k`.
 
 ```html
 <some-shade-image
@@ -41,6 +41,10 @@ Simulates a CMYK halftone print screen with per-channel angle control.
   angle-m="75"
   angle-y="0"
   angle-k="45"
+  show-c="1"
+  show-m="1"
+  show-y="1"
+  show-k="1"
 ></some-shade-image>
 ```
 
@@ -59,6 +63,24 @@ Halftone effect using a single custom color.
 ></some-shade-image>
 ```
 
+### Technicolor 2-Strip
+
+Simulates early two-strip Technicolor film with warm and cool dye channels plus a black channel, each rendered as halftone dots at independent angles. Dye colors are customizable.
+
+```html
+<some-shade-image
+  src="photo.jpg"
+  effect="technicolor-2strip"
+  dot-radius="4"
+  grid-size="8"
+  angle-warm="15"
+  angle-cool="75"
+  angle-k="45"
+  warm-color="#d94010"
+  cool-color="#0da699"
+></some-shade-image>
+```
+
 ### Dot Grid
 
 Renders the image as a grid of dots with a customizable background.
@@ -72,26 +94,69 @@ Renders the image as a grid of dots with a customizable background.
   dot-offset-x="0.5"
   dot-offset-y="0.5"
   bg-color="#ffffff"
+  angle="0"
 ></some-shade-image>
 ```
 
 ## Attributes Reference
 
+### Global
+
+| Attribute | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `src` | string | `""` | Image URL |
+| `effect` | string | `"halftone-cmyk"` | Effect name |
+| `loading-blur` | number | `0` | Blur radius (px) applied to the source image while the effect loads |
+| `gate-weave` | number | `0` | Film gate-weave jitter amplitude in pixels (0 = off) |
+
+### Shared (per-effect)
+
 | Attribute | Type | Default | Effects |
 |-----------|------|---------|---------|
-| `src` | string | `""` | all |
-| `effect` | string | `"halftone-cmyk"` | all |
-| `dot-radius` | number | `4` | halftone-cmyk, halftone-duotone, dot-grid |
-| `grid-size` | number | `8` | halftone-cmyk, halftone-duotone, dot-grid |
-| `angle-c` | number | `15` | halftone-cmyk |
-| `angle-m` | number | `75` | halftone-cmyk |
-| `angle-y` | number | `0` | halftone-cmyk |
-| `angle-k` | number | `45` | halftone-cmyk |
-| `duotone-color` | string (hex) | `"#0099cc"` | halftone-duotone |
-| `angle` | number | `0` | halftone-duotone |
-| `dot-offset-x` | number | `0.5` | dot-grid |
-| `dot-offset-y` | number | `0.5` | dot-grid |
-| `bg-color` | string (hex) | `"#ffffff"` | dot-grid |
+| `dot-radius` | number | `4` | halftone-cmyk, halftone-duotone, dot-grid, technicolor-2strip |
+| `grid-size` | number | `8` | halftone-cmyk, halftone-duotone, dot-grid, technicolor-2strip |
+
+### CMYK Halftone
+
+| Attribute | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `angle-c` | number | `15` | Cyan screen angle |
+| `angle-m` | number | `75` | Magenta screen angle |
+| `angle-y` | number | `0` | Yellow screen angle |
+| `angle-k` | number | `45` | Black screen angle |
+| `show-c` | number | `1` | Show cyan channel (0/1) |
+| `show-m` | number | `1` | Show magenta channel (0/1) |
+| `show-y` | number | `1` | Show yellow channel (0/1) |
+| `show-k` | number | `1` | Show black channel (0/1) |
+
+### Duotone Halftone
+
+| Attribute | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `duotone-color` | string (hex) | `"#0099cc"` | Paper/highlight color |
+| `angle` | number | `0` | Grid rotation angle |
+
+### Technicolor 2-Strip
+
+| Attribute | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `angle-warm` | number | `15` | Warm channel screen angle |
+| `angle-cool` | number | `75` | Cool channel screen angle |
+| `angle-k` | number | `45` | Black channel screen angle |
+| `show-warm` | number | `1` | Show warm channel (0/1) |
+| `show-cool` | number | `1` | Show cool channel (0/1) |
+| `show-k` | number | `1` | Show black channel (0/1) |
+| `warm-color` | string (hex) | `"#d94010"` | Warm dye color |
+| `cool-color` | string (hex) | `"#0da699"` | Cool dye color |
+
+### Dot Grid
+
+| Attribute | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `angle` | number | `0` | Grid rotation angle |
+| `dot-offset-x` | number | `0.5` | Horizontal dot position within cell (0-1) |
+| `dot-offset-y` | number | `0.5` | Vertical dot position within cell (0-1) |
+| `bg-color` | string (hex) | `"#ffffff"` | Background color |
 
 ## Framework Usage
 
@@ -198,6 +263,14 @@ list();                         // List all registered effect names
 ```
 
 `SomeShadeImage` is the Lit component class, exported for subclassing or direct use.
+
+### `replayTransition(delay?: number)`
+
+Hides the rendered snapshot and fades it back in after `delay` ms (default 500). Useful for previewing the `loading-blur` transition.
+
+```js
+document.querySelector('some-shade-image').replayTransition();
+```
 
 ## Browser Support
 
