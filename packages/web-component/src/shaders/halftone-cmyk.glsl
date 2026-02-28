@@ -10,6 +10,10 @@ uniform float u_angleC;
 uniform float u_angleM;
 uniform float u_angleY;
 uniform float u_angleK;
+uniform float u_showC;
+uniform float u_showM;
+uniform float u_showY;
+uniform float u_showK;
 
 float halftone(vec2 uv, float angle, float channelValue, float gridSize, float dotRadius) {
   float rad = radians(angle);
@@ -42,10 +46,10 @@ void main() {
   float ye = invK > 0.001 ? (invK - b) / invK : 0.0;
 
   // Compute halftone dots for each channel
-  float cDot = halftone(uv, u_angleC, cy, u_gridSize, u_dotRadius);
-  float mDot = halftone(uv, u_angleM, ma, u_gridSize, u_dotRadius);
-  float yDot = halftone(uv, u_angleY, ye, u_gridSize, u_dotRadius);
-  float kDot = halftone(uv, u_angleK, k, u_gridSize, u_dotRadius);
+  float cDot = halftone(uv, u_angleC, cy, u_gridSize, u_dotRadius) * u_showC;
+  float mDot = halftone(uv, u_angleM, ma, u_gridSize, u_dotRadius) * u_showM;
+  float yDot = halftone(uv, u_angleY, ye, u_gridSize, u_dotRadius) * u_showY;
+  float kDot = halftone(uv, u_angleK, k, u_gridSize, u_dotRadius) * u_showK;
 
   // Subtractive color mixing on white paper
   float outR = (1.0 - cDot) * (1.0 - kDot);

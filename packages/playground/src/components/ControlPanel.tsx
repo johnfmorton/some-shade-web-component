@@ -16,6 +16,14 @@ interface ControlPanelProps {
   onAngleYChange: (v: number) => void;
   angleK: number;
   onAngleKChange: (v: number) => void;
+  showC: number;
+  onShowCChange: (v: number) => void;
+  showM: number;
+  onShowMChange: (v: number) => void;
+  showY: number;
+  onShowYChange: (v: number) => void;
+  showK: number;
+  onShowKChange: (v: number) => void;
   duotoneColor: string;
   onDuotoneColorChange: (v: string) => void;
   angle: number;
@@ -26,6 +34,20 @@ interface ControlPanelProps {
   onDotOffsetYChange: (v: number) => void;
   bgColor: string;
   onBgColorChange: (v: string) => void;
+  angleWarm: number;
+  onAngleWarmChange: (v: number) => void;
+  angleCool: number;
+  onAngleCoolChange: (v: number) => void;
+  showWarm: number;
+  onShowWarmChange: (v: number) => void;
+  showCool: number;
+  onShowCoolChange: (v: number) => void;
+  warmColor: string;
+  onWarmColorChange: (v: string) => void;
+  coolColor: string;
+  onCoolColorChange: (v: string) => void;
+  gateWeave: number;
+  onGateWeaveChange: (v: number) => void;
   loadingBlur: number;
   onLoadingBlurChange: (v: number) => void;
   onPreviewTransition: () => void;
@@ -35,6 +57,7 @@ const EFFECTS = [
   { value: 'halftone-cmyk', label: 'CMYK' },
   { value: 'halftone-duotone', label: 'Duotone' },
   { value: 'dot-grid', label: 'Dot Grid' },
+  { value: 'technicolor-2strip', label: '2-Strip' },
 ];
 
 export default function ControlPanel(props: ControlPanelProps) {
@@ -61,7 +84,7 @@ export default function ControlPanel(props: ControlPanelProps) {
       </div>
 
       {/* Shared dot/grid sliders */}
-      {(props.effect === 'halftone-cmyk' || props.effect === 'halftone-duotone' || props.effect === 'dot-grid') && (
+      {(props.effect === 'halftone-cmyk' || props.effect === 'halftone-duotone' || props.effect === 'dot-grid' || props.effect === 'technicolor-2strip') && (
         <>
           <Slider label="Dot Radius" value={props.dotRadius} onChange={props.onDotRadiusChange} min={0.5} max={20} step={0.5} />
           <Slider label="Grid Size" value={props.gridSize} onChange={props.onGridSizeChange} min={2} max={40} step={1} />
@@ -72,10 +95,29 @@ export default function ControlPanel(props: ControlPanelProps) {
       {props.effect === 'halftone-cmyk' && (
         <div className="flex flex-col gap-4">
           <label className="text-sm text-zinc-400">Channel Angles</label>
-          <Slider label="Cyan" value={props.angleC} onChange={props.onAngleCChange} min={0} max={180} step={1} />
-          <Slider label="Magenta" value={props.angleM} onChange={props.onAngleMChange} min={0} max={180} step={1} />
-          <Slider label="Yellow" value={props.angleY} onChange={props.onAngleYChange} min={0} max={180} step={1} />
-          <Slider label="Black" value={props.angleK} onChange={props.onAngleKChange} min={0} max={180} step={1} />
+          {([
+            { label: 'Cyan', angle: props.angleC, onAngle: props.onAngleCChange, show: props.showC, onShow: props.onShowCChange },
+            { label: 'Magenta', angle: props.angleM, onAngle: props.onAngleMChange, show: props.showM, onShow: props.onShowMChange },
+            { label: 'Yellow', angle: props.angleY, onAngle: props.onAngleYChange, show: props.showY, onShow: props.onShowYChange },
+            { label: 'Black', angle: props.angleK, onAngle: props.onAngleKChange, show: props.showK, onShow: props.onShowKChange },
+          ] as const).map(({ label, angle, onAngle, show, onShow }) => (
+            <div key={label} className="flex items-center gap-2">
+              <button
+                onClick={() => onShow(show ? 0 : 1)}
+                className={`w-8 h-8 rounded-md border text-xs font-bold shrink-0 cursor-pointer transition-colors ${
+                  show
+                    ? 'bg-amber-600 border-amber-500 text-white'
+                    : 'bg-zinc-800 border-zinc-700 text-zinc-500'
+                }`}
+                title={`${show ? 'Hide' : 'Show'} ${label}`}
+              >
+                {show ? 'ON' : '—'}
+              </button>
+              <div className="flex-1 min-w-0">
+                <Slider label={label} value={angle} onChange={onAngle} min={0} max={180} step={1} />
+              </div>
+            </div>
+          ))}
         </div>
       )}
 
@@ -116,6 +158,60 @@ export default function ControlPanel(props: ControlPanelProps) {
               <span className="text-sm text-zinc-300 font-mono">{props.bgColor}</span>
             </div>
           </div>
+        </div>
+      )}
+
+      {/* Technicolor 2-Strip controls */}
+      {props.effect === 'technicolor-2strip' && (
+        <div className="flex flex-col gap-4">
+          <label className="text-sm text-zinc-400">Channel Angles</label>
+          {([
+            { label: 'Warm', angle: props.angleWarm, onAngle: props.onAngleWarmChange, show: props.showWarm, onShow: props.onShowWarmChange },
+            { label: 'Cool', angle: props.angleCool, onAngle: props.onAngleCoolChange, show: props.showCool, onShow: props.onShowCoolChange },
+            { label: 'Black', angle: props.angleK, onAngle: props.onAngleKChange, show: props.showK, onShow: props.onShowKChange },
+          ] as const).map(({ label, angle, onAngle, show, onShow }) => (
+            <div key={label} className="flex items-center gap-2">
+              <button
+                onClick={() => onShow(show ? 0 : 1)}
+                className={`w-8 h-8 rounded-md border text-xs font-bold shrink-0 cursor-pointer transition-colors ${
+                  show
+                    ? 'bg-amber-600 border-amber-500 text-white'
+                    : 'bg-zinc-800 border-zinc-700 text-zinc-500'
+                }`}
+                title={`${show ? 'Hide' : 'Show'} ${label}`}
+              >
+                {show ? 'ON' : '\u2014'}
+              </button>
+              <div className="flex-1 min-w-0">
+                <Slider label={label} value={angle} onChange={onAngle} min={0} max={180} step={1} />
+              </div>
+            </div>
+          ))}
+          <div className="flex flex-col gap-2">
+            <label className="text-sm text-zinc-400">Warm Color</label>
+            <div className="flex items-center gap-3">
+              <input
+                type="color"
+                value={props.warmColor}
+                onChange={(e) => props.onWarmColorChange(e.target.value)}
+                className="w-10 h-10 rounded-lg border border-zinc-700 bg-transparent cursor-pointer"
+              />
+              <span className="text-sm text-zinc-300 font-mono">{props.warmColor}</span>
+            </div>
+          </div>
+          <div className="flex flex-col gap-2">
+            <label className="text-sm text-zinc-400">Cool Color</label>
+            <div className="flex items-center gap-3">
+              <input
+                type="color"
+                value={props.coolColor}
+                onChange={(e) => props.onCoolColorChange(e.target.value)}
+                className="w-10 h-10 rounded-lg border border-zinc-700 bg-transparent cursor-pointer"
+              />
+              <span className="text-sm text-zinc-300 font-mono">{props.coolColor}</span>
+            </div>
+          </div>
+          <Slider label="Gate Weave" value={props.gateWeave} onChange={props.onGateWeaveChange} min={0} max={5} step={0.1} />
         </div>
       )}
 

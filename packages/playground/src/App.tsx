@@ -13,11 +13,22 @@ interface State {
   angleM: number;
   angleY: number;
   angleK: number;
+  showC: number;
+  showM: number;
+  showY: number;
+  showK: number;
   duotoneColor: string;
   angle: number;
   dotOffsetX: number;
   dotOffsetY: number;
   bgColor: string;
+  angleWarm: number;
+  angleCool: number;
+  showWarm: number;
+  showCool: number;
+  warmColor: string;
+  coolColor: string;
+  gateWeave: number;
   loadingBlur: number;
 }
 
@@ -35,11 +46,22 @@ const initialState: State = {
   angleM: 75,
   angleY: 0,
   angleK: 45,
+  showC: 1,
+  showM: 1,
+  showY: 1,
+  showK: 1,
   duotoneColor: '#0099cc',
   angle: 0,
   dotOffsetX: 0.5,
   dotOffsetY: 0.5,
   bgColor: '#ffffff',
+  angleWarm: 15,
+  angleCool: 75,
+  showWarm: 1,
+  showCool: 1,
+  warmColor: '#d94010',
+  coolColor: '#0da699',
+  gateWeave: 0,
   loadingBlur: 0,
 };
 
@@ -53,11 +75,22 @@ const keyToAttr: Record<keyof State, string> = {
   angleM: 'angle-m',
   angleY: 'angle-y',
   angleK: 'angle-k',
+  showC: 'show-c',
+  showM: 'show-m',
+  showY: 'show-y',
+  showK: 'show-k',
   duotoneColor: 'duotone-color',
   angle: 'angle',
   dotOffsetX: 'dot-offset-x',
   dotOffsetY: 'dot-offset-y',
   bgColor: 'bg-color',
+  angleWarm: 'angle-warm',
+  angleCool: 'angle-cool',
+  showWarm: 'show-warm',
+  showCool: 'show-cool',
+  warmColor: 'warm-color',
+  coolColor: 'cool-color',
+  gateWeave: 'gate-weave',
   loadingBlur: 'loading-blur',
 };
 
@@ -69,7 +102,10 @@ const STORAGE_KEY = 'some-shade-playground';
 
 const numberKeys = new Set<keyof State>([
   'dotRadius', 'gridSize', 'angleC', 'angleM', 'angleY', 'angleK',
-  'angle', 'dotOffsetX', 'dotOffsetY', 'loadingBlur',
+  'showC', 'showM', 'showY', 'showK',
+  'angle', 'dotOffsetX', 'dotOffsetY',
+  'angleWarm', 'angleCool', 'showWarm', 'showCool',
+  'gateWeave', 'loadingBlur',
 ]);
 
 function hydrateState(): State {
@@ -103,8 +139,13 @@ function hydrateState(): State {
 
 function reducer(state: State, action: Action): State {
   switch (action.type) {
-    case 'SET':
-      return { ...state, [action.key]: action.value };
+    case 'SET': {
+      const next = { ...state, [action.key]: action.value };
+      if (action.key === 'effect') {
+        next.showK = action.value === 'technicolor-2strip' ? 0 : 1;
+      }
+      return next;
+    }
     case 'RESET':
       return { ...initialState };
     case 'INIT':
@@ -128,11 +169,22 @@ declare global {
           'angle-m'?: number;
           'angle-y'?: number;
           'angle-k'?: number;
+          'show-c'?: number;
+          'show-m'?: number;
+          'show-y'?: number;
+          'show-k'?: number;
           'duotone-color'?: string;
           angle?: number;
           'dot-offset-x'?: number;
           'dot-offset-y'?: number;
           'bg-color'?: string;
+          'angle-warm'?: number;
+          'angle-cool'?: number;
+          'show-warm'?: number;
+          'show-cool'?: number;
+          'warm-color'?: string;
+          'cool-color'?: string;
+          'gate-weave'?: number;
           'loading-blur'?: number;
         },
         HTMLElement
@@ -210,11 +262,22 @@ export default function App() {
               angle-m={state.angleM}
               angle-y={state.angleY}
               angle-k={state.angleK}
+              show-c={state.showC}
+              show-m={state.showM}
+              show-y={state.showY}
+              show-k={state.showK}
               duotone-color={state.duotoneColor}
               angle={state.angle}
               dot-offset-x={state.dotOffsetX}
               dot-offset-y={state.dotOffsetY}
               bg-color={state.bgColor}
+              angle-warm={state.angleWarm}
+              angle-cool={state.angleCool}
+              show-warm={state.showWarm}
+              show-cool={state.showCool}
+              warm-color={state.warmColor}
+              cool-color={state.coolColor}
+              gate-weave={state.gateWeave}
               loading-blur={state.loadingBlur}
             />
           </div>
@@ -238,6 +301,14 @@ export default function App() {
             onAngleYChange={set('angleY')}
             angleK={state.angleK}
             onAngleKChange={set('angleK')}
+            showC={state.showC}
+            onShowCChange={set('showC')}
+            showM={state.showM}
+            onShowMChange={set('showM')}
+            showY={state.showY}
+            onShowYChange={set('showY')}
+            showK={state.showK}
+            onShowKChange={set('showK')}
             duotoneColor={state.duotoneColor}
             onDuotoneColorChange={set('duotoneColor')}
             angle={state.angle}
@@ -248,6 +319,20 @@ export default function App() {
             onDotOffsetYChange={set('dotOffsetY')}
             bgColor={state.bgColor}
             onBgColorChange={set('bgColor')}
+            angleWarm={state.angleWarm}
+            onAngleWarmChange={set('angleWarm')}
+            angleCool={state.angleCool}
+            onAngleCoolChange={set('angleCool')}
+            showWarm={state.showWarm}
+            onShowWarmChange={set('showWarm')}
+            showCool={state.showCool}
+            onShowCoolChange={set('showCool')}
+            warmColor={state.warmColor}
+            onWarmColorChange={set('warmColor')}
+            coolColor={state.coolColor}
+            onCoolColorChange={set('coolColor')}
+            gateWeave={state.gateWeave}
+            onGateWeaveChange={set('gateWeave')}
             loadingBlur={state.loadingBlur}
             onLoadingBlurChange={set('loadingBlur')}
             onPreviewTransition={handlePreviewTransition}

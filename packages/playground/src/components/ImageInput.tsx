@@ -4,6 +4,8 @@ const PRESETS = [
   { label: 'Picsum 1', url: 'https://picsum.photos/id/1015/800/600' },
   { label: 'Picsum 2', url: 'https://picsum.photos/id/1025/800/600' },
   { label: 'Picsum 3', url: 'https://picsum.photos/id/1069/800/600' },
+  { label: 'Illustration', url: 'https://upload.wikimedia.org/wikipedia/commons/7/77/Alfons_Mucha_-_Fruit.jpg' },
+  { label: 'Poster', url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/70/See_America%2C_WPA_poster%2C_ca._1937.jpg/800px-See_America%2C_WPA_poster%2C_ca._1937.jpg' },
 ];
 
 interface ImageInputProps {

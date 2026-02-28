@@ -2,6 +2,7 @@ import type { EffectDefinition } from './types.js';
 import { halftoneCmykEffect } from './effects/halftone-cmyk.js';
 import { halftoneDuotoneEffect } from './effects/halftone-duotone.js';
 import { dotGridEffect } from './effects/dot-grid.js';
+import { technicolor2StripEffect } from './effects/technicolor-2strip.js';
 
 const effects = new Map<string, EffectDefinition>();
 
@@ -21,3 +22,4 @@ export function list(): string[] {
 register(halftoneCmykEffect);
 register(halftoneDuotoneEffect);
 register(dotGridEffect);
+register(technicolor2StripEffect);

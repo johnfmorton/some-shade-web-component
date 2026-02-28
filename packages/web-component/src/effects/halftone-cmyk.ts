@@ -13,5 +13,9 @@ export const halftoneCmykEffect: EffectDefinition = {
     { name: 'u_angleM', type: 'float', default: 75, attribute: 'angle-m' },
     { name: 'u_angleY', type: 'float', default: 0, attribute: 'angle-y' },
     { name: 'u_angleK', type: 'float', default: 45, attribute: 'angle-k' },
+    { name: 'u_showC', type: 'float', default: 1, attribute: 'show-c' },
+    { name: 'u_showM', type: 'float', default: 1, attribute: 'show-m' },
+    { name: 'u_showY', type: 'float', default: 1, attribute: 'show-y' },
+    { name: 'u_showK', type: 'float', default: 1, attribute: 'show-k' },
   ],
 };

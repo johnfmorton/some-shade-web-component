@@ -31,11 +31,21 @@ const RENDER_PROPS: ReadonlySet<string> = new Set([
   'angleM',
   'angleY',
   'angleK',
+  'showC',
+  'showM',
+  'showY',
+  'showK',
   'duotoneColor',
   'angle',
   'dotOffsetX',
   'dotOffsetY',
   'bgColor',
+  'angleWarm',
+  'angleCool',
+  'showWarm',
+  'showCool',
+  'warmColor',
+  'coolColor',
 ]);
 
 export class SomeShadeImage extends LitElement {
@@ -71,11 +81,22 @@ export class SomeShadeImage extends LitElement {
   @property({ type: Number, attribute: 'angle-m' }) angleM = 75;
   @property({ type: Number, attribute: 'angle-y' }) angleY = 0;
   @property({ type: Number, attribute: 'angle-k' }) angleK = 45;
+  @property({ type: Number, attribute: 'show-c' }) showC = 1;
+  @property({ type: Number, attribute: 'show-m' }) showM = 1;
+  @property({ type: Number, attribute: 'show-y' }) showY = 1;
+  @property({ type: Number, attribute: 'show-k' }) showK = 1;
   @property({ attribute: 'duotone-color' }) duotoneColor = '#0099cc';
   @property({ type: Number }) angle = 0;
   @property({ type: Number, attribute: 'dot-offset-x' }) dotOffsetX = 0.5;
   @property({ type: Number, attribute: 'dot-offset-y' }) dotOffsetY = 0.5;
   @property({ attribute: 'bg-color' }) bgColor = '#ffffff';
+  @property({ type: Number, attribute: 'angle-warm' }) angleWarm = 15;
+  @property({ type: Number, attribute: 'angle-cool' }) angleCool = 75;
+  @property({ type: Number, attribute: 'show-warm' }) showWarm = 1;
+  @property({ type: Number, attribute: 'show-cool' }) showCool = 1;
+  @property({ attribute: 'warm-color' }) warmColor = '#d94010';
+  @property({ attribute: 'cool-color' }) coolColor = '#0da699';
+  @property({ type: Number, attribute: 'gate-weave' }) gateWeave = 0;
   @property({ type: Number, attribute: 'loading-blur' }) loadingBlur = 0;
 
   @state() private _webglAvailable = true;
@@ -86,6 +107,8 @@ export class SomeShadeImage extends LitElement {
   private _observer: IntersectionObserver | null = null;
   private _visible = false;
   private _needsRender = false;
+  private _gateWeaveRaf = 0;
+  private _gateWeaveTime = 0;
 
   override render() {
     if (!this._webglAvailable) {
@@ -137,11 +160,16 @@ export class SomeShadeImage extends LitElement {
     if (needsRender) {
       this._scheduleRender();
     }
+
+    if (changed.has('gateWeave')) {
+      this._updateGateWeave();
+    }
   }
 
   override disconnectedCallback(): void {
     super.disconnectedCallback();
     this._observer?.disconnect();
+    this._stopGateWeave();
     this._revokeSnapshot();
   }
 
@@ -318,6 +346,10 @@ export class SomeShadeImage extends LitElement {
       uniforms['u_angleM'] = this.angleM;
       uniforms['u_angleY'] = this.angleY;
       uniforms['u_angleK'] = this.angleK;
+      uniforms['u_showC'] = this.showC;
+      uniforms['u_showM'] = this.showM;
+      uniforms['u_showY'] = this.showY;
+      uniforms['u_showK'] = this.showK;
     } else if (this.effect === 'halftone-duotone') {
       uniforms['u_duotoneColor'] = this._parseHexColor(this.duotoneColor);
       uniforms['u_angle'] = this.angle;
@@ -325,9 +357,51 @@ export class SomeShadeImage extends LitElement {
       uniforms['u_dotOffset'] = [this.dotOffsetX, this.dotOffsetY];
       uniforms['u_bgColor'] = this._parseHexColor(this.bgColor);
       uniforms['u_angle'] = this.angle;
+    } else if (this.effect === 'technicolor-2strip') {
+      uniforms['u_angleWarm'] = this.angleWarm;
+      uniforms['u_angleCool'] = this.angleCool;
+      uniforms['u_angleK'] = this.angleK;
+      uniforms['u_showWarm'] = this.showWarm;
+      uniforms['u_showCool'] = this.showCool;
+      uniforms['u_showK'] = this.showK;
+      uniforms['u_warmColor'] = this._parseHexColor(this.warmColor);
+      uniforms['u_coolColor'] = this._parseHexColor(this.coolColor);
     }
 
     return uniforms;
+  }
+
+  private _updateGateWeave(): void {
+    this._stopGateWeave();
+    if (this.gateWeave <= 0) {
+      // Reset transform when disabled
+      const snap = this.renderRoot.querySelector<HTMLImageElement>('img.snapshot');
+      if (snap) snap.style.transform = '';
+      return;
+    }
+
+    const INTERVAL = 1000 / 12; // ~12 fps
+    const loop = (now: number) => {
+      if (now - this._gateWeaveTime >= INTERVAL) {
+        this._gateWeaveTime = now;
+        const snap = this.renderRoot.querySelector<HTMLImageElement>('img.snapshot');
+        if (snap) {
+          const dx = (Math.random() - 0.5) * 2 * this.gateWeave;
+          const dy = (Math.random() - 0.5) * 2 * this.gateWeave;
+          const s = 1 + this.gateWeave * 0.003;
+          snap.style.transform = `translate(${dx}px, ${dy}px) scale(${s})`;
+        }
+      }
+      this._gateWeaveRaf = requestAnimationFrame(loop);
+    };
+    this._gateWeaveRaf = requestAnimationFrame(loop);
+  }
+
+  private _stopGateWeave(): void {
+    if (this._gateWeaveRaf) {
+      cancelAnimationFrame(this._gateWeaveRaf);
+      this._gateWeaveRaf = 0;
+    }
   }
 
   private _parseHexColor(hex: string): number[] {
