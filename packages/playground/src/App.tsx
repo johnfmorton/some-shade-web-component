@@ -28,7 +28,6 @@ interface State {
   showCool: number;
   warmColor: string;
   coolColor: string;
-  gateWeave: number;
   loadingBlur: number;
   displayWidth: number;
 }
@@ -38,8 +37,10 @@ type Action =
   | { type: 'RESET' }
   | { type: 'INIT'; state: State };
 
+const base = import.meta.env.BASE_URL;
+
 const initialState: State = {
-  src: 'https://picsum.photos/id/1015/800/600',
+  src: `${base}sample-images/catdog1_900x600.png`,
   effect: 'halftone-cmyk',
   dotRadius: 4,
   gridSize: 8,
@@ -62,7 +63,6 @@ const initialState: State = {
   showCool: 1,
   warmColor: '#d94010',
   coolColor: '#0da699',
-  gateWeave: 0,
   loadingBlur: 0,
   displayWidth: 0,
 };
@@ -92,7 +92,6 @@ const keyToAttr: Record<keyof State, string> = {
   showCool: 'show-cool',
   warmColor: 'warm-color',
   coolColor: 'cool-color',
-  gateWeave: 'gate-weave',
   loadingBlur: 'loading-blur',
   displayWidth: 'display-width',
 };
@@ -108,7 +107,7 @@ const numberKeys = new Set<keyof State>([
   'showC', 'showM', 'showY', 'showK',
   'angle', 'dotOffsetX', 'dotOffsetY',
   'angleWarm', 'angleCool', 'showWarm', 'showCool',
-  'gateWeave', 'loadingBlur', 'displayWidth',
+  'loadingBlur', 'displayWidth',
 ]);
 
 function hydrateState(): State {
@@ -187,7 +186,6 @@ declare global {
           'show-cool'?: number;
           'warm-color'?: string;
           'cool-color'?: string;
-          'gate-weave'?: number;
           'loading-blur'?: number;
         },
         HTMLElement
@@ -281,7 +279,6 @@ export default function App() {
               show-cool={state.showCool}
               warm-color={state.warmColor}
               cool-color={state.coolColor}
-              gate-weave={state.gateWeave}
               loading-blur={state.loadingBlur}
             />
           </div>
@@ -335,8 +332,6 @@ export default function App() {
             onWarmColorChange={set('warmColor')}
             coolColor={state.coolColor}
             onCoolColorChange={set('coolColor')}
-            gateWeave={state.gateWeave}
-            onGateWeaveChange={set('gateWeave')}
             loadingBlur={state.loadingBlur}
             onLoadingBlurChange={set('loadingBlur')}
             displayWidth={state.displayWidth}

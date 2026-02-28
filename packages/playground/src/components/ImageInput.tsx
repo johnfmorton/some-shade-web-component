@@ -1,11 +1,14 @@
 import React, { useRef } from 'react';
 
+const base = import.meta.env.BASE_URL;
+
 const PRESETS = [
-  { label: 'Picsum 1', url: 'https://picsum.photos/id/1015/800/600' },
-  { label: 'Picsum 2', url: 'https://picsum.photos/id/1025/800/600' },
-  { label: 'Picsum 3', url: 'https://picsum.photos/id/1069/800/600' },
-  { label: 'Illustration', url: 'https://upload.wikimedia.org/wikipedia/commons/7/77/Alfons_Mucha_-_Fruit.jpg' },
-  { label: 'Poster', url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/70/See_America%2C_WPA_poster%2C_ca._1937.jpg/800px-See_America%2C_WPA_poster%2C_ca._1937.jpg' },
+  { label: 'Sample 1', url: `${base}sample-images/catdog1_900x600.png` },
+  { label: 'Sample 2', url: `${base}sample-images/catdog2_900x600.png` },
+  { label: 'Sample 3', url: `${base}sample-images/catdog3_900x600.png` },
+  { label: 'Sample 4', url: `${base}sample-images/catdog4_900x600.png` },
+  { label: 'Sample 5', url: `${base}sample-images/catdog5_900x600.png` },
+  { label: 'Sample 6', url: `${base}sample-images/catdog6_900x600.png` },
 ];
 
 interface ImageInputProps {

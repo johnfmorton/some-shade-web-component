@@ -97,7 +97,6 @@ export class SomeShadeImage extends LitElement {
   @property({ type: Number, attribute: 'show-cool' }) showCool = 1;
   @property({ attribute: 'warm-color' }) warmColor = '#d94010';
   @property({ attribute: 'cool-color' }) coolColor = '#0da699';
-  @property({ type: Number, attribute: 'gate-weave' }) gateWeave = 0;
   @property({ type: Number, attribute: 'loading-blur' }) loadingBlur = 0;
 
   @state() private _webglAvailable = true;
@@ -110,8 +109,6 @@ export class SomeShadeImage extends LitElement {
   private _lastClientWidth = 0;
   private _visible = false;
   private _needsRender = false;
-  private _gateWeaveRaf = 0;
-  private _gateWeaveTime = 0;
 
   override render() {
     if (!this._webglAvailable) {
@@ -174,16 +171,12 @@ export class SomeShadeImage extends LitElement {
       this._scheduleRender();
     }
 
-    if (changed.has('gateWeave')) {
-      this._updateGateWeave();
-    }
   }
 
   override disconnectedCallback(): void {
     super.disconnectedCallback();
     this._observer?.disconnect();
     this._resizeObserver?.disconnect();
-    this._stopGateWeave();
     this._revokeSnapshot();
   }
 
@@ -387,39 +380,6 @@ export class SomeShadeImage extends LitElement {
     }
 
     return uniforms;
-  }
-
-  private _updateGateWeave(): void {
-    this._stopGateWeave();
-    if (this.gateWeave <= 0) {
-      // Reset transform when disabled
-      const snap = this.renderRoot.querySelector<HTMLImageElement>('img.snapshot');
-      if (snap) snap.style.transform = '';
-      return;
-    }
-
-    const INTERVAL = 1000 / 12; // ~12 fps
-    const loop = (now: number) => {
-      if (now - this._gateWeaveTime >= INTERVAL) {
-        this._gateWeaveTime = now;
-        const snap = this.renderRoot.querySelector<HTMLImageElement>('img.snapshot');
-        if (snap) {
-          const dx = (Math.random() - 0.5) * 2 * this.gateWeave;
-          const dy = (Math.random() - 0.5) * 2 * this.gateWeave;
-          const s = 1 + this.gateWeave * 0.003;
-          snap.style.transform = `translate(${dx}px, ${dy}px) scale(${s})`;
-        }
-      }
-      this._gateWeaveRaf = requestAnimationFrame(loop);
-    };
-    this._gateWeaveRaf = requestAnimationFrame(loop);
-  }
-
-  private _stopGateWeave(): void {
-    if (this._gateWeaveRaf) {
-      cancelAnimationFrame(this._gateWeaveRaf);
-      this._gateWeaveRaf = 0;
-    }
   }
 
   private _parseHexColor(hex: string): number[] {

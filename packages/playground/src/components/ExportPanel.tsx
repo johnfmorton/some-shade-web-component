@@ -25,7 +25,6 @@ interface ExportPanelProps {
     showCool: number;
     warmColor: string;
     coolColor: string;
-    gateWeave: number;
     loadingBlur: number;
     displayWidth: number;
   };
@@ -68,7 +67,6 @@ export default function ExportPanel({ state, onReset }: ExportPanelProps) {
       if (!state.showK) attrs.push(`show-k="0"`);
       attrs.push(`warm-color="${state.warmColor}"`);
       attrs.push(`cool-color="${state.coolColor}"`);
-      if (state.gateWeave > 0) attrs.push(`gate-weave="${state.gateWeave}"`);
     }
 
     if (state.loadingBlur > 0) attrs.push(`loading-blur="${state.loadingBlur}"`);

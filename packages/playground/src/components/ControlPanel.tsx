@@ -46,8 +46,6 @@ interface ControlPanelProps {
   onWarmColorChange: (v: string) => void;
   coolColor: string;
   onCoolColorChange: (v: string) => void;
-  gateWeave: number;
-  onGateWeaveChange: (v: number) => void;
   loadingBlur: number;
   onLoadingBlurChange: (v: number) => void;
   displayWidth: number;
@@ -213,7 +211,6 @@ export default function ControlPanel(props: ControlPanelProps) {
               <span className="text-sm text-zinc-300 font-mono">{props.coolColor}</span>
             </div>
           </div>
-          <Slider label="Gate Weave" value={props.gateWeave} onChange={props.onGateWeaveChange} min={0} max={5} step={0.1} />
         </div>
       )}
 

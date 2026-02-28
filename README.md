@@ -107,7 +107,6 @@ Renders the image as a grid of dots with a customizable background.
 | `src` | string | `""` | Image URL |
 | `effect` | string | `"halftone-cmyk"` | Effect name |
 | `loading-blur` | number | `0` | Blur radius (px) applied to the source image while the effect loads |
-| `gate-weave` | number | `0` | Film gate-weave jitter amplitude in pixels (0 = off) |
 
 ### Shared (per-effect)
 
