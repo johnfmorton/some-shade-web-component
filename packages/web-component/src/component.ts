@@ -48,6 +48,7 @@ const RENDER_PROPS: ReadonlySet<string> = new Set([
   'warmColor',
   'coolColor',
   'blendMode',
+  'referenceWidth',
 ]);
 
 export class SomeShadeImage extends LitElement {
@@ -101,6 +102,7 @@ export class SomeShadeImage extends LitElement {
   @property({ attribute: 'warm-color' }) warmColor = '#d94010';
   @property({ attribute: 'cool-color' }) coolColor = '#0da699';
   @property({ type: Number, attribute: 'blend-mode' }) blendMode = 1;
+  @property({ type: Number, attribute: 'reference-width' }) referenceWidth = 1024;
   @property({ type: Number, attribute: 'loading-blur' }) loadingBlur = 0;
 
   @state() private _webglAvailable = true;
@@ -336,8 +338,9 @@ export class SomeShadeImage extends LitElement {
       textureInfo.width * dpr,
       textureInfo.height * dpr,
     ];
-    uniforms['u_dotRadius'] = this.dotRadius;
-    uniforms['u_gridSize'] = this.gridSize;
+    const imageScale = textureInfo.width / this.referenceWidth;
+    uniforms['u_dotRadius'] = this.dotRadius * imageScale;
+    uniforms['u_gridSize'] = this.gridSize * imageScale;
 
     if (this.effect === 'halftone-cmyk') {
       uniforms['u_angleC'] = this.angleC;
