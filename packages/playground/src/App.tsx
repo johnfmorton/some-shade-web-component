@@ -30,6 +30,7 @@ interface State {
   warmColor: string;
   coolColor: string;
   blendMode: number;
+  referenceWidth: number;
   loadingBlur: number;
   displayWidth: number;
 }
@@ -67,6 +68,7 @@ const initialState: State = {
   warmColor: '#d94010',
   coolColor: '#0da699',
   blendMode: 1,
+  referenceWidth: 1024,
   loadingBlur: 0,
   displayWidth: 0,
 };
@@ -98,6 +100,7 @@ const keyToAttr: Record<keyof State, string> = {
   warmColor: 'warm-color',
   coolColor: 'cool-color',
   blendMode: 'blend-mode',
+  referenceWidth: 'reference-width',
   loadingBlur: 'loading-blur',
   displayWidth: 'display-width',
 };
@@ -113,7 +116,7 @@ const numberKeys = new Set<keyof State>([
   'showC', 'showM', 'showY', 'showK', 'intensityK',
   'angle', 'dotOffsetX', 'dotOffsetY',
   'angleWarm', 'angleCool', 'showWarm', 'showCool', 'blendMode',
-  'loadingBlur', 'displayWidth',
+  'referenceWidth', 'loadingBlur', 'displayWidth',
 ]);
 
 function hydrateState(): State {
@@ -196,6 +199,7 @@ declare global {
           'warm-color'?: string;
           'cool-color'?: string;
           'blend-mode'?: number;
+          'reference-width'?: number;
           'loading-blur'?: number;
         },
         HTMLElement
@@ -293,6 +297,7 @@ export default function App() {
                 warm-color={state.warmColor}
                 cool-color={state.coolColor}
                 blend-mode={state.blendMode}
+                reference-width={state.referenceWidth}
                 loading-blur={state.loadingBlur}
               />
             ) : (
@@ -359,6 +364,8 @@ export default function App() {
             onCoolColorChange={set('coolColor')}
             blendMode={state.blendMode}
             onBlendModeChange={set('blendMode')}
+            referenceWidth={state.referenceWidth}
+            onReferenceWidthChange={set('referenceWidth')}
             loadingBlur={state.loadingBlur}
             onLoadingBlurChange={set('loadingBlur')}
             displayWidth={state.displayWidth}

@@ -50,6 +50,8 @@ interface ControlPanelProps {
   onCoolColorChange: (v: string) => void;
   blendMode: number;
   onBlendModeChange: (v: number) => void;
+  referenceWidth: number;
+  onReferenceWidthChange: (v: number) => void;
   loadingBlur: number;
   onLoadingBlurChange: (v: number) => void;
   displayWidth: number;
@@ -277,6 +279,9 @@ export default function ControlPanel(props: ControlPanelProps) {
           />
         )}
       </div>
+
+      {/* Reference width */}
+      <Slider label="Reference Width" value={props.referenceWidth} onChange={props.onReferenceWidthChange} min={256} max={4096} step={64} />
 
       {/* Loading blur */}
       <Slider label="Loading Blur" value={props.loadingBlur} onChange={props.onLoadingBlurChange} min={0} max={40} step={1} />
