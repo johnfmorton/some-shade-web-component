@@ -109,8 +109,6 @@ export class SomeShadeImage extends LitElement {
 
   private _image: HTMLImageElement | null = null;
   private _observer: IntersectionObserver | null = null;
-  private _resizeObserver: ResizeObserver | null = null;
-  private _lastClientWidth = 0;
   private _visible = false;
   private _needsRender = false;
 
@@ -149,15 +147,6 @@ export class SomeShadeImage extends LitElement {
     );
     this._observer.observe(this);
 
-    this._resizeObserver = new ResizeObserver(() => {
-      if (!this._image) return;
-      const cw = this.clientWidth;
-      if (cw > 0 && cw !== this._lastClientWidth) {
-        this._lastClientWidth = cw;
-        this._scheduleRender();
-      }
-    });
-    this._resizeObserver.observe(this);
   }
 
   override updated(changed: PropertyValues): void {
@@ -180,7 +169,6 @@ export class SomeShadeImage extends LitElement {
   override disconnectedCallback(): void {
     super.disconnectedCallback();
     this._observer?.disconnect();
-    this._resizeObserver?.disconnect();
     this._revokeSnapshot();
   }
 
@@ -229,10 +217,6 @@ export class SomeShadeImage extends LitElement {
     const dpr = Math.min(window.devicePixelRatio || 1, MAX_DPR);
     const w = this._image.naturalWidth;
     const h = this._image.naturalHeight;
-    const displayWidth = this.clientWidth || w;
-    const displayScale = Math.max(1, w / displayWidth);
-    this._lastClientWidth = this.clientWidth;
-
     // Temporary offscreen canvas — not added to the DOM.
     const canvas = document.createElement('canvas');
     canvas.width = w * dpr;
@@ -268,7 +252,7 @@ export class SomeShadeImage extends LitElement {
       setUniforms(
         gl,
         programInfo,
-        this._getUniformValues(textureInfo, dpr, displayScale),
+        this._getUniformValues(textureInfo, dpr),
       );
 
       gl.bindBuffer(gl.ARRAY_BUFFER, quadBuffer);
@@ -345,7 +329,6 @@ export class SomeShadeImage extends LitElement {
   private _getUniformValues(
     textureInfo: TextureInfo,
     dpr: number,
-    displayScale: number,
   ): Record<string, number | number[]> {
     const uniforms: Record<string, number | number[]> = {};
 
@@ -353,8 +336,8 @@ export class SomeShadeImage extends LitElement {
       textureInfo.width * dpr,
       textureInfo.height * dpr,
     ];
-    uniforms['u_dotRadius'] = this.dotRadius * displayScale;
-    uniforms['u_gridSize'] = this.gridSize * displayScale;
+    uniforms['u_dotRadius'] = this.dotRadius;
+    uniforms['u_gridSize'] = this.gridSize;
 
     if (this.effect === 'halftone-cmyk') {
       uniforms['u_angleC'] = this.angleC;
