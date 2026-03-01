@@ -150,7 +150,7 @@ function reducer(state: State, action: Action): State {
     case 'SET': {
       const next = { ...state, [action.key]: action.value };
       if (action.key === 'effect') {
-        next.showK = action.value === 'technicolor-2strip' ? 0 : 1;
+        next.showK = 1;
         next.dotRadius = action.value === 'technicolor-2strip' ? 7 : initialState.dotRadius;
         next.gridSize = action.value === 'technicolor-2strip' ? 10 : initialState.gridSize;
       }
