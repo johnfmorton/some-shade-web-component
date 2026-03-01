@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+## 1.0.1 - 2026-03-01
+
+- Fix: rebuild dist before publish (1.0.0 shipped stale build missing technicolor-2strip effect)
+
 ## 1.0.0 - 2026-03-01
 
 First stable release. Includes all features developed during the 0.1.x beta series.
