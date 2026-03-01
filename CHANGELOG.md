@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+## 0.1.4-beta - 2026-03-01
+
+- Fix 2-strip K intensity slider to control dot size instead of opacity — intensity now scales the K channel value before halftone rendering (matching CMYK behavior) so dots grow/shrink rather than fading
+
 ## 0.1.3-beta - 2026-03-01
 
 - Add blend mode selection to 2-strip Technicolor effect (`blend-mode` attribute) — choose between Subtractive (dye overlap darkens), Additive (light overlap brightens, new default), and Screen (soft additive clamping) to explore different color mixing models
