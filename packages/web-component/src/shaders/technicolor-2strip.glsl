@@ -42,6 +42,7 @@ void main() {
 
   // Black channel: derived from overall darkness
   float k = 1.0 - max(warmSep, coolSep);
+  k = clamp(k * u_intensityK, 0.0, 1.0);
 
   // Halftone dots for each channel
   float warmDot = halftone(uv, u_angleWarm, warmSep, u_gridSize, u_dotRadius) * u_showWarm;
@@ -76,7 +77,7 @@ void main() {
               + both * overlap;
 
   // K channel darkening with intensity control
-  result *= (1.0 - kDot * u_intensityK);
+  result *= (1.0 - kDot);
 
   gl_FragColor = vec4(clamp(result, 0.0, 1.0), color.a);
 }
