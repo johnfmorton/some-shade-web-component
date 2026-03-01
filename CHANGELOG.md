@@ -2,6 +2,34 @@
 
 ## Unreleased
 
+## 1.0.0 - 2026-03-01
+
+First stable release. Includes all features developed during the 0.1.x beta series.
+
+### Effects
+- **CMYK halftone** (`halftone-cmyk`) — four-channel halftone with per-channel angle, visibility, and K intensity controls
+- **Duotone halftone** (`halftone-duotone`) — single-color halftone with custom highlight color
+- **Dot grid** (`dot-grid`) — image rendered as a grid of dots with custom background color and dot offset
+- **2-strip Technicolor** (`technicolor-2strip`) — warm/cool/K halftone channels with adjustable dye colors and three blend modes (Subtractive, Additive, Screen)
+
+### Features
+- Per-channel show/hide toggles (`show-c`, `show-m`, `show-y`, `show-k`, `show-warm`, `show-cool`)
+- K-channel intensity control (`intensity-k`) for CMYK and 2-strip effects
+- Blend mode selection (`blend-mode`) for 2-strip effect
+- Grid angle control for dot grid and duotone effects
+- Loading blur (`loading-blur`) with fade-in transition
+- `replayTransition()` public method to replay the loading transition
+- Custom effect registration API (`register`, `get`, `list`)
+- WebGL fallback to plain `<img>` when unavailable
+- Render-then-snapshot architecture — WebGL context created and torn down per render
+- Global render queue serialises WebGL across all instances
+- IntersectionObserver defers rendering for off-screen instances
+- Device pixel ratio capped at 2 for mobile memory savings
+
+### Breaking Changes (from 0.1.x beta)
+- Pixel sort effect removed (`pixel-sort`, `threshold`, `sort-direction`, `sort-span` attributes)
+- Channel toggle attributes use Number type (0/1) instead of Boolean for framework interop
+
 ## 0.1.4-beta - 2026-03-01
 
 - Fix 2-strip K intensity slider to control dot size instead of opacity — intensity now scales the K channel value before halftone rendering (matching CMYK behavior) so dots grow/shrink rather than fading

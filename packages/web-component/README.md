@@ -27,9 +27,9 @@ npm install @johnfmorton/some-shade
 
 ## Effects
 
-### CMYK Halftone
+### CMYK Halftone (`halftone-cmyk`)
 
-Simulates a CMYK halftone print screen with per-channel angle control.
+Simulates a CMYK halftone print screen with per-channel angle control, visibility toggles, and black channel intensity.
 
 ```html
 <some-shade-image
@@ -41,10 +41,15 @@ Simulates a CMYK halftone print screen with per-channel angle control.
   angle-m="75"
   angle-y="0"
   angle-k="45"
+  show-c="1"
+  show-m="1"
+  show-y="1"
+  show-k="1"
+  intensity-k="1"
 ></some-shade-image>
 ```
 
-### Duotone Halftone
+### Duotone Halftone (`halftone-duotone`)
 
 Halftone effect using a single custom color.
 
@@ -59,7 +64,7 @@ Halftone effect using a single custom color.
 ></some-shade-image>
 ```
 
-### Dot Grid
+### Dot Grid (`dot-grid`)
 
 Renders the image as a grid of dots with a customizable background.
 
@@ -72,26 +77,102 @@ Renders the image as a grid of dots with a customizable background.
   dot-offset-x="0.5"
   dot-offset-y="0.5"
   bg-color="#ffffff"
+  angle="0"
 ></some-shade-image>
 ```
 
+### 2-Strip Technicolor (`technicolor-2strip`)
+
+Simulates the early two-strip Technicolor film process with warm and cool dye channels plus a black (K) channel for detail. Choose between three blend modes for different color mixing behavior.
+
+```html
+<some-shade-image
+  src="photo.jpg"
+  effect="technicolor-2strip"
+  dot-radius="7"
+  grid-size="10"
+  angle-warm="15"
+  angle-cool="75"
+  angle-k="45"
+  show-warm="1"
+  show-cool="1"
+  show-k="1"
+  warm-color="#d94010"
+  cool-color="#0da699"
+  blend-mode="1"
+  intensity-k="1"
+></some-shade-image>
+```
+
+**Blend modes:** `0` = Subtractive (dye overlap darkens), `1` = Additive (light overlap brightens), `2` = Screen (soft additive clamping).
+
 ## Attributes Reference
 
-| Attribute | Type | Default | Effects |
-|-----------|------|---------|---------|
-| `src` | string | `""` | all |
-| `effect` | string | `"halftone-cmyk"` | all |
-| `dot-radius` | number | `4` | halftone-cmyk, halftone-duotone, dot-grid |
-| `grid-size` | number | `8` | halftone-cmyk, halftone-duotone, dot-grid |
-| `angle-c` | number | `15` | halftone-cmyk |
-| `angle-m` | number | `75` | halftone-cmyk |
-| `angle-y` | number | `0` | halftone-cmyk |
-| `angle-k` | number | `45` | halftone-cmyk |
-| `duotone-color` | string (hex) | `"#0099cc"` | halftone-duotone |
-| `angle` | number | `0` | halftone-duotone |
-| `dot-offset-x` | number | `0.5` | dot-grid |
-| `dot-offset-y` | number | `0.5` | dot-grid |
-| `bg-color` | string (hex) | `"#ffffff"` | dot-grid |
+### Universal
+
+| Attribute | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `src` | string | `""` | Image source URL |
+| `effect` | string | `"halftone-cmyk"` | Active effect name |
+| `dot-radius` | number | `4` | Dot radius in pixels |
+| `grid-size` | number | `8` | Grid cell size in pixels |
+| `loading-blur` | number | `0` | Blur (px) applied to the source image while the effect renders |
+
+### CMYK Halftone
+
+| Attribute | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `angle-c` | number | `15` | Cyan channel angle (degrees) |
+| `angle-m` | number | `75` | Magenta channel angle (degrees) |
+| `angle-y` | number | `0` | Yellow channel angle (degrees) |
+| `angle-k` | number | `45` | Black channel angle (degrees) |
+| `show-c` | number | `1` | Show cyan channel (0 or 1) |
+| `show-m` | number | `1` | Show magenta channel (0 or 1) |
+| `show-y` | number | `1` | Show yellow channel (0 or 1) |
+| `show-k` | number | `1` | Show black channel (0 or 1) |
+| `intensity-k` | number | `1` | Black channel intensity multiplier (0–2) |
+
+### Duotone Halftone
+
+| Attribute | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `duotone-color` | string | `"#0099cc"` | Highlight color (hex) |
+| `angle` | number | `0` | Grid angle (degrees) |
+
+### Dot Grid
+
+| Attribute | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `dot-offset-x` | number | `0.5` | Horizontal dot offset (0–1) |
+| `dot-offset-y` | number | `0.5` | Vertical dot offset (0–1) |
+| `bg-color` | string | `"#ffffff"` | Background color (hex) |
+| `angle` | number | `0` | Grid angle (degrees) |
+
+### 2-Strip Technicolor
+
+| Attribute | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `angle-warm` | number | `15` | Warm channel angle (degrees) |
+| `angle-cool` | number | `75` | Cool channel angle (degrees) |
+| `angle-k` | number | `45` | Black channel angle (degrees) |
+| `show-warm` | number | `1` | Show warm channel (0 or 1) |
+| `show-cool` | number | `1` | Show cool channel (0 or 1) |
+| `show-k` | number | `1` | Show black channel (0 or 1) |
+| `warm-color` | string | `"#d94010"` | Warm dye color (hex) |
+| `cool-color` | string | `"#0da699"` | Cool dye color (hex) |
+| `blend-mode` | number | `1` | Blend mode: 0 = Subtractive, 1 = Additive, 2 = Screen |
+| `intensity-k` | number | `1` | Black channel intensity multiplier (0–2) |
+
+## Methods
+
+### `replayTransition(delay?: number)`
+
+Hides the rendered snapshot and fades it back in after a delay. Useful for previewing the loading blur transition.
+
+```js
+const el = document.querySelector('some-shade-image');
+el.replayTransition(500);
+```
 
 ## Framework Usage
 
