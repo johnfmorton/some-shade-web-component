@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.1.0 - 2026-03-01
+
+- Add `reference-width` attribute (default 1024) — normalizes `u_gridSize` and `u_dotRadius` by source image width so the dot pattern looks visually consistent regardless of image resolution
+
 ## 0.1.1-beta
 
 - Fix halftone-duotone and halftone-cmyk shaders to sample at grid cell center — dots are now clean, uniform circles instead of splotchy per-pixel noise

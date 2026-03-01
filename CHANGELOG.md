@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+## 1.1.0 - 2026-03-01
+
+- Add `reference-width` attribute (default 1024) — normalizes `u_gridSize` and `u_dotRadius` by source image width so the dot pattern looks visually consistent regardless of image resolution
+- Add Reference Width slider to playground
+
 ## 1.0.1 - 2026-03-01
 
 - Fix: rebuild dist before publish (1.0.0 shipped stale build missing technicolor-2strip effect)
