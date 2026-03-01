@@ -14,6 +14,8 @@ uniform float u_showCool;
 uniform float u_showK;
 uniform vec3 u_warmColor;
 uniform vec3 u_coolColor;
+uniform float u_blendMode;
+uniform float u_intensityK;
 
 float halftone(vec2 uv, float angle, float channelValue, float gridSize, float dotRadius) {
   float rad = radians(angle);
@@ -46,11 +48,35 @@ void main() {
   float coolDot = halftone(uv, u_angleCool, coolSep, u_gridSize, u_dotRadius) * u_showCool;
   float kDot = halftone(uv, u_angleK, k, u_gridSize, u_dotRadius) * u_showK;
 
-  // Subtractive mixing: start with white paper, subtract dye layers
-  vec3 paper = vec3(1.0);
-  paper -= warmDot * (vec3(1.0) - u_warmColor);
-  paper -= coolDot * (vec3(1.0) - u_coolColor);
-  paper *= (1.0 - kDot);
+  // Blend modes affect how warm and cool dots combine where they overlap.
+  // All modes use white paper; individual dots look the same.
+  // Only the overlap regions differ between modes.
+  vec3 overlap;
+  if (u_blendMode < 0.5) {
+    // Subtractive: dye overlap absorbs more light (darker)
+    overlap = u_warmColor + u_coolColor - vec3(1.0);
+  } else if (u_blendMode < 1.5) {
+    // Additive: light overlap adds up (brighter)
+    overlap = u_warmColor + u_coolColor;
+  } else {
+    // Screen: soft additive overlap with natural clamping
+    overlap = vec3(1.0) - (vec3(1.0) - u_warmColor) * (vec3(1.0) - u_coolColor);
+  }
 
-  gl_FragColor = vec4(clamp(paper, 0.0, 1.0), color.a);
+  // Decompose into four halftone regions
+  float onlyWarm = warmDot * (1.0 - coolDot);
+  float onlyCool = coolDot * (1.0 - warmDot);
+  float both = warmDot * coolDot;
+  float neither = (1.0 - warmDot) * (1.0 - coolDot);
+
+  // Composite: white paper base, colored dots, blend-mode-dependent overlap
+  vec3 result = neither * vec3(1.0)
+              + onlyWarm * u_warmColor
+              + onlyCool * u_coolColor
+              + both * overlap;
+
+  // K channel darkening with intensity control
+  result *= (1.0 - kDot * u_intensityK);
+
+  gl_FragColor = vec4(clamp(result, 0.0, 1.0), color.a);
 }

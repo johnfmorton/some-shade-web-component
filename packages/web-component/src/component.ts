@@ -47,6 +47,7 @@ const RENDER_PROPS: ReadonlySet<string> = new Set([
   'showCool',
   'warmColor',
   'coolColor',
+  'blendMode',
 ]);
 
 export class SomeShadeImage extends LitElement {
@@ -99,6 +100,7 @@ export class SomeShadeImage extends LitElement {
   @property({ type: Number, attribute: 'show-cool' }) showCool = 1;
   @property({ attribute: 'warm-color' }) warmColor = '#d94010';
   @property({ attribute: 'cool-color' }) coolColor = '#0da699';
+  @property({ type: Number, attribute: 'blend-mode' }) blendMode = 1;
   @property({ type: Number, attribute: 'loading-blur' }) loadingBlur = 0;
 
   @state() private _webglAvailable = true;
@@ -380,6 +382,8 @@ export class SomeShadeImage extends LitElement {
       uniforms['u_showK'] = this.showK;
       uniforms['u_warmColor'] = this._parseHexColor(this.warmColor);
       uniforms['u_coolColor'] = this._parseHexColor(this.coolColor);
+      uniforms['u_blendMode'] = this.blendMode;
+      uniforms['u_intensityK'] = this.intensityK;
     }
 
     return uniforms;

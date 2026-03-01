@@ -48,6 +48,8 @@ interface ControlPanelProps {
   onWarmColorChange: (v: string) => void;
   coolColor: string;
   onCoolColorChange: (v: string) => void;
+  blendMode: number;
+  onBlendModeChange: (v: number) => void;
   loadingBlur: number;
   onLoadingBlurChange: (v: number) => void;
   displayWidth: number;
@@ -190,6 +192,7 @@ export default function ControlPanel(props: ControlPanelProps) {
               </div>
             </div>
           ))}
+          <Slider label="K Intensity" value={props.intensityK} onChange={props.onIntensityKChange} min={0} max={2} step={0.05} />
           <div className="flex flex-col gap-2">
             <label className="text-sm text-zinc-400">Warm Color</label>
             <div className="flex items-center gap-3">
@@ -212,6 +215,28 @@ export default function ControlPanel(props: ControlPanelProps) {
                 className="w-10 h-10 rounded-lg border border-zinc-700 bg-transparent cursor-pointer"
               />
               <span className="text-sm text-zinc-300 font-mono">{props.coolColor}</span>
+            </div>
+          </div>
+          <div className="flex flex-col gap-2">
+            <label className="text-sm text-zinc-400">Blend Mode</label>
+            <div className="flex gap-1 bg-zinc-800 p-1 rounded-lg">
+              {([
+                { value: 0, label: 'Subtractive' },
+                { value: 1, label: 'Additive' },
+                { value: 2, label: 'Screen' },
+              ] as const).map((mode) => (
+                <button
+                  key={mode.value}
+                  onClick={() => props.onBlendModeChange(mode.value)}
+                  className={`flex-1 px-3 py-1.5 text-sm rounded-md transition-colors cursor-pointer ${
+                    props.blendMode === mode.value
+                      ? 'bg-amber-600 text-white'
+                      : 'text-zinc-400 hover:text-zinc-200'
+                  }`}
+                >
+                  {mode.label}
+                </button>
+              ))}
             </div>
           </div>
         </div>

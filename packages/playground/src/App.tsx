@@ -29,6 +29,7 @@ interface State {
   showCool: number;
   warmColor: string;
   coolColor: string;
+  blendMode: number;
   loadingBlur: number;
   displayWidth: number;
 }
@@ -65,6 +66,7 @@ const initialState: State = {
   showCool: 1,
   warmColor: '#d94010',
   coolColor: '#0da699',
+  blendMode: 1,
   loadingBlur: 0,
   displayWidth: 0,
 };
@@ -95,6 +97,7 @@ const keyToAttr: Record<keyof State, string> = {
   showCool: 'show-cool',
   warmColor: 'warm-color',
   coolColor: 'cool-color',
+  blendMode: 'blend-mode',
   loadingBlur: 'loading-blur',
   displayWidth: 'display-width',
 };
@@ -109,7 +112,7 @@ const numberKeys = new Set<keyof State>([
   'dotRadius', 'gridSize', 'angleC', 'angleM', 'angleY', 'angleK',
   'showC', 'showM', 'showY', 'showK', 'intensityK',
   'angle', 'dotOffsetX', 'dotOffsetY',
-  'angleWarm', 'angleCool', 'showWarm', 'showCool',
+  'angleWarm', 'angleCool', 'showWarm', 'showCool', 'blendMode',
   'loadingBlur', 'displayWidth',
 ]);
 
@@ -148,6 +151,8 @@ function reducer(state: State, action: Action): State {
       const next = { ...state, [action.key]: action.value };
       if (action.key === 'effect') {
         next.showK = action.value === 'technicolor-2strip' ? 0 : 1;
+        next.dotRadius = action.value === 'technicolor-2strip' ? 7 : initialState.dotRadius;
+        next.gridSize = action.value === 'technicolor-2strip' ? 10 : initialState.gridSize;
       }
       return next;
     }
@@ -190,6 +195,7 @@ declare global {
           'show-cool'?: number;
           'warm-color'?: string;
           'cool-color'?: string;
+          'blend-mode'?: number;
           'loading-blur'?: number;
         },
         HTMLElement
@@ -286,6 +292,7 @@ export default function App() {
                 show-cool={state.showCool}
                 warm-color={state.warmColor}
                 cool-color={state.coolColor}
+                blend-mode={state.blendMode}
                 loading-blur={state.loadingBlur}
               />
             ) : (
@@ -350,6 +357,8 @@ export default function App() {
             onWarmColorChange={set('warmColor')}
             coolColor={state.coolColor}
             onCoolColorChange={set('coolColor')}
+            blendMode={state.blendMode}
+            onBlendModeChange={set('blendMode')}
             loadingBlur={state.loadingBlur}
             onLoadingBlurChange={set('loadingBlur')}
             displayWidth={state.displayWidth}
