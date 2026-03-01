@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 0.1.3-beta - 2026-03-01
+
 - Add blend mode selection to 2-strip Technicolor effect (`blend-mode` attribute) — choose between Subtractive (dye overlap darkens), Additive (light overlap brightens, new default), and Screen (soft additive clamping) to explore different color mixing models
 - Add K-channel intensity control to 2-strip effect (`intensity-k` attribute, 0–2 range) — matches the existing CMYK intensity slider for fine-tuning black dot prominence
 - Adjust 2-strip defaults: dot radius 7, grid size 10, blend mode Additive, K channel off
