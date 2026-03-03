@@ -25,7 +25,7 @@ interface ExportPanelProps {
     showCool: number;
     warmColor: string;
     coolColor: string;
-    loadingBlur: number;
+    referenceWidth: number;
     displayWidth: number;
   };
   onReset: () => void;
@@ -69,7 +69,7 @@ export default function ExportPanel({ state, onReset }: ExportPanelProps) {
       attrs.push(`cool-color="${state.coolColor}"`);
     }
 
-    if (state.loadingBlur > 0) attrs.push(`loading-blur="${state.loadingBlur}"`);
+    if (state.referenceWidth !== 1024) attrs.push(`reference-width="${state.referenceWidth}"`);
     return attrs;
   }
 

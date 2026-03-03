@@ -31,7 +31,6 @@ interface State {
   coolColor: string;
   blendMode: number;
   referenceWidth: number;
-  loadingBlur: number;
   displayWidth: number;
 }
 
@@ -69,7 +68,6 @@ const initialState: State = {
   coolColor: '#0da699',
   blendMode: 1,
   referenceWidth: 1024,
-  loadingBlur: 0,
   displayWidth: 0,
 };
 
@@ -101,7 +99,6 @@ const keyToAttr: Record<keyof State, string> = {
   coolColor: 'cool-color',
   blendMode: 'blend-mode',
   referenceWidth: 'reference-width',
-  loadingBlur: 'loading-blur',
   displayWidth: 'display-width',
 };
 
@@ -116,7 +113,7 @@ const numberKeys = new Set<keyof State>([
   'showC', 'showM', 'showY', 'showK', 'intensityK',
   'angle', 'dotOffsetX', 'dotOffsetY',
   'angleWarm', 'angleCool', 'showWarm', 'showCool', 'blendMode',
-  'referenceWidth', 'loadingBlur', 'displayWidth',
+  'referenceWidth', 'displayWidth',
 ]);
 
 function hydrateState(): State {
@@ -200,7 +197,6 @@ declare global {
           'cool-color'?: string;
           'blend-mode'?: number;
           'reference-width'?: number;
-          'loading-blur'?: number;
         },
         HTMLElement
       >;
@@ -298,7 +294,6 @@ export default function App() {
                 cool-color={state.coolColor}
                 blend-mode={state.blendMode}
                 reference-width={state.referenceWidth}
-                loading-blur={state.loadingBlur}
               />
             ) : (
               <img
@@ -366,8 +361,6 @@ export default function App() {
             onBlendModeChange={set('blendMode')}
             referenceWidth={state.referenceWidth}
             onReferenceWidthChange={set('referenceWidth')}
-            loadingBlur={state.loadingBlur}
-            onLoadingBlurChange={set('loadingBlur')}
             displayWidth={state.displayWidth}
             onDisplayWidthChange={set('displayWidth')}
             onPreviewTransition={handlePreviewTransition}

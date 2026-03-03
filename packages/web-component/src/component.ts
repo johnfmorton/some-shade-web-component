@@ -64,6 +64,9 @@ export class SomeShadeImage extends LitElement {
       width: 100%;
       height: auto;
     }
+    img.base {
+      opacity: 0;
+    }
     img.snapshot {
       position: absolute;
       inset: 0;
@@ -103,8 +106,6 @@ export class SomeShadeImage extends LitElement {
   @property({ attribute: 'cool-color' }) coolColor = '#0da699';
   @property({ type: Number, attribute: 'blend-mode' }) blendMode = 1;
   @property({ type: Number, attribute: 'reference-width' }) referenceWidth = 1024;
-  @property({ type: Number, attribute: 'loading-blur' }) loadingBlur = 0;
-
   @state() private _webglAvailable = true;
   @state() private _snapshotUrl = '';
   @state() private _snapshotLoaded = false;
@@ -118,11 +119,8 @@ export class SomeShadeImage extends LitElement {
     if (!this._webglAvailable) {
       return html`<img src=${this.src} alt="" />`;
     }
-    // Source image is always the base layer. The processed snapshot fades
-    // in on top once the blob image has finished loading.
-    const blurStyle = this.loadingBlur > 0 ? `filter: blur(${this.loadingBlur}px)` : '';
     return html`
-      <img src=${this.src} alt="" style=${blurStyle} />
+      <img class="base" src=${this.src} alt="" />
       ${this._snapshotUrl
         ? html`<img
             class="snapshot${this._snapshotLoaded ? ' loaded' : ''}"
@@ -139,16 +137,20 @@ export class SomeShadeImage extends LitElement {
       (entries) => {
         const wasVisible = this._visible;
         this._visible = entries[0]?.isIntersecting ?? false;
-        if (this._visible && !wasVisible && this._needsRender) {
-          this._needsRender = false;
-          enqueueRender(() => this._renderEffect());
+        if (this._visible && !wasVisible) {
+          // Render if a deferred render is pending, OR if an image loaded
+          // but no snapshot was produced yet (catches timing edge-cases
+          // where the observer fires before/after _scheduleRender).
+          if (this._needsRender || (this._image && !this._snapshotUrl)) {
+            this._needsRender = false;
+            enqueueRender(() => this._renderEffect());
+          }
         }
       },
       // Start rendering slightly before the element scrolls into view.
       { rootMargin: '200px' },
     );
     this._observer.observe(this);
-
   }
 
   override updated(changed: PropertyValues): void {
@@ -200,6 +202,21 @@ export class SomeShadeImage extends LitElement {
       enqueueRender(() => this._renderEffect());
     } else {
       this._needsRender = true;
+      // Fallback: the IntersectionObserver may not have fired yet for
+      // elements already in the viewport at page load.  Check manually
+      // after layout so the first visible image isn't stuck unrendered.
+      requestAnimationFrame(() => {
+        if (this._needsRender && !this._visible) {
+          const rect = this.getBoundingClientRect();
+          const inViewport =
+            rect.bottom >= 0 && rect.top < window.innerHeight;
+          if (inViewport) {
+            this._visible = true;
+            this._needsRender = false;
+            enqueueRender(() => this._renderEffect());
+          }
+        }
+      });
     }
   }
 

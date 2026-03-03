@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+## 1.1.2 - 2026-03-03
+
+- Fix: prevent flash of unstyled source image — base image is now hidden and the processed snapshot fades in directly
+- Remove `loading-blur` attribute (now inert; existing usage is silently ignored)
+- Remove Loading Blur slider from playground
+- Fix: first image on a page sometimes not getting the shader effect applied — add fallback visibility checks to handle IntersectionObserver timing edge-cases at page load
+
 ## 1.1.1 - 2026-03-03
 
 - Add Open Graph, Twitter Card, and description meta tags to playground for social media sharing previews

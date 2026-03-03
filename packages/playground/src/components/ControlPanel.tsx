@@ -52,8 +52,6 @@ interface ControlPanelProps {
   onBlendModeChange: (v: number) => void;
   referenceWidth: number;
   onReferenceWidthChange: (v: number) => void;
-  loadingBlur: number;
-  onLoadingBlurChange: (v: number) => void;
   displayWidth: number;
   onDisplayWidthChange: (v: number) => void;
   onPreviewTransition: () => void;
@@ -283,8 +281,6 @@ export default function ControlPanel(props: ControlPanelProps) {
       {/* Reference width */}
       <Slider label="Reference Width" value={props.referenceWidth} onChange={props.onReferenceWidthChange} min={256} max={4096} step={64} />
 
-      {/* Loading blur */}
-      <Slider label="Loading Blur" value={props.loadingBlur} onChange={props.onLoadingBlurChange} min={0} max={40} step={1} />
       <button
         onClick={props.onPreviewTransition}
         className="px-3 py-2 bg-zinc-800 border border-zinc-700 rounded-lg text-sm text-zinc-300 hover:bg-zinc-700 transition-colors cursor-pointer"
