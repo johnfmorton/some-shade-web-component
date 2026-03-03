@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+## 1.1.1 - 2026-03-03
+
+- Add Open Graph, Twitter Card, and description meta tags to playground for social media sharing previews
+- Update playground page title to be more descriptive
+
 ## 1.1.0 - 2026-03-01
 
 - Add `reference-width` attribute (default 1024) — normalizes `u_gridSize` and `u_dotRadius` by source image width so the dot pattern looks visually consistent regardless of image resolution
