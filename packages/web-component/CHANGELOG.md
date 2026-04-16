@@ -1,5 +1,12 @@
 # Changelog
 
+## [Unreleased]
+
+### Changed
+
+- Render at display size instead of full natural resolution — a 4000 px image shown at 800 CSS px now renders at ≤1600 px (at 2× DPR) instead of 8000 px
+- Replace PNG blob round-trip with direct canvas copy (`drawImage`) — eliminates PNG encoding and decoding overhead entirely
+
 ## 1.1.0 - 2026-03-01
 
 - Add `reference-width` attribute (default 1024) — normalizes `u_gridSize` and `u_dotRadius` by source image width so the dot pattern looks visually consistent regardless of image resolution

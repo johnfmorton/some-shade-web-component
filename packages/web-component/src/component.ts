@@ -2,7 +2,7 @@ import { LitElement, html, css, PropertyValues } from 'lit';
 import { property, state } from 'lit/decorators.js';
 import { createWebGLContext } from './gl/context.js';
 import { createProgram, setUniforms, type ProgramInfo } from './gl/program.js';
-import { loadTexture, type TextureInfo } from './gl/texture.js';
+import { loadTexture } from './gl/texture.js';
 import { createQuad, drawQuad } from './gl/quad.js';
 import { get as getEffect } from './registry.js';
 import type { EffectDefinition } from './types.js';
@@ -67,7 +67,7 @@ export class SomeShadeImage extends LitElement {
     img.base {
       opacity: 0;
     }
-    img.snapshot {
+    canvas.snapshot {
       position: absolute;
       inset: 0;
       width: 100%;
@@ -75,7 +75,7 @@ export class SomeShadeImage extends LitElement {
       opacity: 0;
       transition: opacity 0.3s ease;
     }
-    img.snapshot.loaded {
+    canvas.snapshot.ready {
       opacity: 1;
     }
   `;
@@ -107,8 +107,7 @@ export class SomeShadeImage extends LitElement {
   @property({ type: Number, attribute: 'blend-mode' }) blendMode = 1;
   @property({ type: Number, attribute: 'reference-width' }) referenceWidth = 1024;
   @state() private _webglAvailable = true;
-  @state() private _snapshotUrl = '';
-  @state() private _snapshotLoaded = false;
+  @state() private _snapshotReady = false;
 
   private _image: HTMLImageElement | null = null;
   private _observer: IntersectionObserver | null = null;
@@ -121,13 +120,9 @@ export class SomeShadeImage extends LitElement {
     }
     return html`
       <img class="base" src=${this.src} alt="" />
-      ${this._snapshotUrl
-        ? html`<img
-            class="snapshot${this._snapshotLoaded ? ' loaded' : ''}"
-            src=${this._snapshotUrl}
-            @load=${this._onSnapshotLoad}
-            alt="" />`
-        : ''}
+      <canvas
+        class="snapshot${this._snapshotReady ? ' ready' : ''}"
+      ></canvas>
     `;
   }
 
@@ -141,7 +136,7 @@ export class SomeShadeImage extends LitElement {
           // Render if a deferred render is pending, OR if an image loaded
           // but no snapshot was produced yet (catches timing edge-cases
           // where the observer fires before/after _scheduleRender).
-          if (this._needsRender || (this._image && !this._snapshotUrl)) {
+          if (this._needsRender || (this._image && !this._snapshotReady)) {
             this._needsRender = false;
             enqueueRender(() => this._renderEffect());
           }
@@ -173,7 +168,6 @@ export class SomeShadeImage extends LitElement {
   override disconnectedCallback(): void {
     super.disconnectedCallback();
     this._observer?.disconnect();
-    this._revokeSnapshot();
   }
 
   // ---------------------------------------------------------------------------
@@ -233,13 +227,23 @@ export class SomeShadeImage extends LitElement {
       return;
     }
 
+    this._snapshotReady = false;
+
     const dpr = Math.min(window.devicePixelRatio || 1, MAX_DPR);
-    const w = this._image.naturalWidth;
-    const h = this._image.naturalHeight;
+    const natW = this._image.naturalWidth;
+    const natH = this._image.naturalHeight;
+
+    // Render at display size instead of natural size.
+    // A 4000 px image shown at 800 CSS px needs at most 1600 px (at 2× DPR),
+    // not 8000 px.  Cap at natural width so we never upscale.
+    const displayW = this.clientWidth || natW;
+    const renderW = Math.min(Math.round(displayW * dpr), natW);
+    const renderH = Math.round(renderW * (natH / natW));
+
     // Temporary offscreen canvas — not added to the DOM.
     const canvas = document.createElement('canvas');
-    canvas.width = w * dpr;
-    canvas.height = h * dpr;
+    canvas.width = renderW;
+    canvas.height = renderH;
 
     const gl = createWebGLContext(canvas);
     if (!gl) {
@@ -271,7 +275,7 @@ export class SomeShadeImage extends LitElement {
       setUniforms(
         gl,
         programInfo,
-        this._getUniformValues(textureInfo, dpr),
+        this._getUniformValues(renderW, renderH, dpr),
       );
 
       gl.bindBuffer(gl.ARRAY_BUFFER, quadBuffer);
@@ -297,21 +301,22 @@ export class SomeShadeImage extends LitElement {
 
       drawQuad(gl);
 
-      // Snapshot the rendered canvas to a blob URL.
-      const blob = await new Promise<Blob | null>((resolve) =>
-        canvas.toBlob(resolve),
-      );
+      // Copy rendered result directly to the DOM canvas — no PNG encode/decode.
+      const snapshot = this.renderRoot.querySelector<HTMLCanvasElement>('.snapshot');
+      if (snapshot) {
+        snapshot.width = renderW;
+        snapshot.height = renderH;
+        const ctx = snapshot.getContext('2d');
+        if (ctx) {
+          ctx.drawImage(canvas, 0, 0);
+          this._snapshotReady = true;
+        }
+      }
 
       // Release WebGL resources.
       gl.deleteTexture(textureInfo.texture);
       gl.deleteProgram(programInfo.program);
       gl.deleteBuffer(quadBuffer);
-
-      if (blob) {
-        this._snapshotLoaded = false;
-        this._revokeSnapshot();
-        this._snapshotUrl = URL.createObjectURL(blob);
-      }
     } finally {
       // Always drop the context regardless of success/failure.
       gl.getExtension('WEBGL_lose_context')?.loseContext();
@@ -322,40 +327,27 @@ export class SomeShadeImage extends LitElement {
   // Helpers
   // ---------------------------------------------------------------------------
 
-  private _onSnapshotLoad(): void {
-    this._snapshotLoaded = true;
-  }
-
   /** Hide the rendered snapshot momentarily, then fade it back in.
    *  Useful for previewing the loading-blur transition. */
   replayTransition(delay = 500): void {
-    if (!this._snapshotUrl) return;
-    this._snapshotLoaded = false;
+    if (!this._snapshotReady) return;
+    this._snapshotReady = false;
     this.updateComplete.then(() => {
       setTimeout(() => {
-        this._snapshotLoaded = true;
+        this._snapshotReady = true;
       }, delay);
     });
   }
 
-  private _revokeSnapshot(): void {
-    if (this._snapshotUrl) {
-      URL.revokeObjectURL(this._snapshotUrl);
-      this._snapshotUrl = '';
-    }
-  }
-
   private _getUniformValues(
-    textureInfo: TextureInfo,
+    renderW: number,
+    renderH: number,
     dpr: number,
   ): Record<string, number | number[]> {
     const uniforms: Record<string, number | number[]> = {};
 
-    uniforms['u_resolution'] = [
-      textureInfo.width * dpr,
-      textureInfo.height * dpr,
-    ];
-    const imageScale = textureInfo.width / this.referenceWidth;
+    uniforms['u_resolution'] = [renderW, renderH];
+    const imageScale = renderW / (this.referenceWidth * dpr);
     uniforms['u_dotRadius'] = this.dotRadius * imageScale;
     uniforms['u_gridSize'] = this.gridSize * imageScale;
 
