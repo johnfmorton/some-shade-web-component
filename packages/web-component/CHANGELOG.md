@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [1.2.0] - 2026-04-16
+
 ### Changed
 
 - Render at display size instead of full natural resolution — a 4000 px image shown at 800 CSS px now renders at ≤1600 px (at 2× DPR) instead of 8000 px
@@ -76,3 +78,5 @@
 - WebGL fallback to plain `<img>` when unavailable
 - React playground with live controls and code export
 - GitHub Pages deployment for playground
+
+[1.2.0]: https://github.com/johnfmorton/some-shade-web-component/releases/tag/v1.2.0
