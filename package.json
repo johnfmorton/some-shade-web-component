@@ -9,6 +9,6 @@
     "publish:beta": "pnpm build:component && pnpm --filter @johnfmorton/some-shade publish --tag beta --access public && pnpm tag",
     "publish:release": "pnpm build:component && pnpm --filter @johnfmorton/some-shade publish --access public && pnpm tag",
     "latest": "npm dist-tag add @johnfmorton/some-shade@$(node -p \"require('./packages/web-component/package.json').version\") latest",
-    "tag": "git tag v$(node -p \"require('./packages/web-component/package.json').version\") && git push origin v$(node -p \"require('./packages/web-component/package.json').version\")"
+    "tag": "V=v$(node -p \"require('./packages/web-component/package.json').version\") && git tag -m \"$V\" \"$V\" && git push origin \"$V\""
   }
 }
