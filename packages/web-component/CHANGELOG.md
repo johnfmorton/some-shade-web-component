@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+### Fixed
+
+- Firefox: rendered image stayed blank because `drawImage()` from a never-composited offscreen WebGL canvas read an empty framebuffer. Explicitly flush the GL command stream before the copy.
+
 ## [1.2.0] - 2026-04-16
 
 ### Changed
