@@ -3,6 +3,7 @@
 ## Prerequisites
 
 - Logged into npm: `npm login`
+- Logged into GitHub CLI: `gh auth status` (used to create the GitHub Release)
 - On a clean git working tree (all changes committed)
 
 ## Beta Release
@@ -28,10 +29,12 @@
 
 | Script | What it does |
 |---|---|
-| `pnpm publish:beta` | Publish with the `beta` dist-tag and create a git tag |
-| `pnpm publish:release` | Publish with the `latest` dist-tag and create a git tag |
+| `pnpm publish:beta` | Publish with the `beta` dist-tag, create a git tag, and create a GitHub pre-release |
+| `pnpm publish:release` | Publish with the `latest` dist-tag, create a git tag, and create a GitHub Release |
 | `pnpm latest` | Point the `latest` dist-tag to the current version |
 | `pnpm tag` | Create and push a git tag for the current version |
+| `pnpm gh-release` | Create a GitHub Release for the current version (notes pulled from `packages/web-component/CHANGELOG.md`) |
+| `pnpm gh-release:beta` | Same, but marked as a GitHub pre-release |
 
 ## Notes
 
