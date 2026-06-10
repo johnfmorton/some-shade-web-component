@@ -2,11 +2,15 @@
 
 ## [Unreleased]
 
+### Fixed
+
+- Firefox (real fix for the 1.2.1 regression): the `gl.flush()` from 1.2.1 worked under headless Firefox but did nothing on hardware-accelerated Firefox, where `drawImage(webglCanvas, …)` captures a lazy reference that the immediate `loseContext()` call wipes before the 2D context can materialize it. Snapshot via `createImageBitmap` instead, which detaches the pixels from the GL context eagerly.
+
 ## [1.2.1] - 2026-06-10
 
 ### Fixed
 
-- Firefox: rendered image stayed blank because `drawImage()` from a never-composited offscreen WebGL canvas read an empty framebuffer. Explicitly flush the GL command stream before the copy.
+- Firefox: rendered image stayed blank because `drawImage()` from a never-composited offscreen WebGL canvas read an empty framebuffer. Explicitly flush the GL command stream before the copy. *(Note: only fixed headless Firefox; hardware-accelerated Firefox is fixed in 1.2.2.)*
 
 ## [1.2.0] - 2026-04-16
 

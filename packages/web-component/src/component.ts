@@ -301,22 +301,23 @@ export class SomeShadeImage extends LitElement {
 
       drawQuad(gl);
 
-      // Firefox needs an explicit flush before drawImage() reads from a
-      // never-composited offscreen WebGL canvas; otherwise the 2D context
-      // copies a blank framebuffer.
-      gl.flush();
+      // Eagerly snapshot the WebGL canvas into an ImageBitmap so the pixels
+      // are detached from the GL context before loseContext() fires below.
+      // drawImage(webglCanvas, ...) in headed Firefox captures only a lazy
+      // reference, which goes blank as soon as the context is released.
+      const bitmap = await createImageBitmap(canvas);
 
-      // Copy rendered result directly to the DOM canvas — no PNG encode/decode.
       const snapshot = this.renderRoot.querySelector<HTMLCanvasElement>('.snapshot');
       if (snapshot) {
         snapshot.width = renderW;
         snapshot.height = renderH;
         const ctx = snapshot.getContext('2d');
         if (ctx) {
-          ctx.drawImage(canvas, 0, 0);
+          ctx.drawImage(bitmap, 0, 0);
           this._snapshotReady = true;
         }
       }
+      bitmap.close();
 
       // Release WebGL resources.
       gl.deleteTexture(textureInfo.texture);
