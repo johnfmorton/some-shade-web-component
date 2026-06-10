@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [1.2.2] - 2026-06-10
+
 ### Fixed
 
 - Firefox (real fix for the 1.2.1 regression): the `gl.flush()` from 1.2.1 worked under headless Firefox but did nothing on hardware-accelerated Firefox, where `drawImage(webglCanvas, …)` captures a lazy reference that the immediate `loseContext()` call wipes before the 2D context can materialize it. Snapshot via `createImageBitmap` instead, which detaches the pixels from the GL context eagerly.
@@ -91,3 +93,4 @@
 
 [1.2.0]: https://github.com/johnfmorton/some-shade-web-component/releases/tag/v1.2.0
 [1.2.1]: https://github.com/johnfmorton/some-shade-web-component/releases/tag/v1.2.1
+[1.2.2]: https://github.com/johnfmorton/some-shade-web-component/releases/tag/v1.2.2
